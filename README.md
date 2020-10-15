@@ -2,6 +2,13 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.7.
 
+[![Platform](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue)](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-blue)
+[![Language](https://img.shields.io/badge/language-angular-orange)](https://img.shields.io/badge/language-ruby-orange)
+[![Bootstrap](https://img.shields.io/github/package-json/dependency-version/a-kushnir/five-crowns/bootstrap)](https://img.shields.io/github/package-json/dependency-version/a-kushnir/five-crowns/bootstrap)
+[![jQuery](https://img.shields.io/github/package-json/dependency-version/a-kushnir/five-crowns/jquery)](https://img.shields.io/github/package-json/dependency-version/a-kushnir/five-crowns/jquery)
+[![Scrutinizer Code Quality](https://img.shields.io/scrutinizer/quality/g/a-kushnir/five-crowns/main)](https://img.shields.io/scrutinizer/quality/g/a-kushnir/five-crowns/main)
+[![License](https://img.shields.io/github/license/a-kushnir/five-crowns)](https://img.shields.io/github/license/a-kushnir/five-crowns)
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
