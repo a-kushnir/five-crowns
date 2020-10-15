@@ -41,7 +41,9 @@ export class UserService {
   }
 
   private handleUpdates(id: string, record: any): void {
-    record = {...record, id};
+    if (record) {
+      record = {...record, id};
+    }
     this.user.next(record);
   }
 
