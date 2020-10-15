@@ -1,0 +1,49 @@
+<div class="row">
+  <div class="col-12">
+    <div class="accordion mx-auto" id="profileAccordion">
+      <div class="card">
+        <div class="card-header" id="accountHeader">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block text-left" [class.collapsed]="card !== 'account'" (click)="toggle('account')" type="button" data-toggle="collapse" data-target="#accountContent" [attr.aria-expanded]="card === 'account' ? 'true' : 'false'" aria-controls="accountContent">
+              Account
+            </button>
+          </h2>
+        </div>
+        <div id="accountContent" class="collapse" [class.show]="card === 'account'" aria-labelledby="accountHeader" data-parent="#profileAccordion">
+          <div class="card-body">
+            <app-profile-account></app-profile-account>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="passwordHeader">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block text-left" [class.collapsed]="card !== 'password'" (click)="toggle('password')" type="button" data-toggle="collapse" data-target="#passwordContent" [attr.aria-expanded]="card === 'password' ? 'true' : 'false'" aria-controls="passwordContent">
+              Password
+            </button>
+          </h2>
+        </div>
+        <div id="passwordContent" class="collapse" [class.show]="card === 'password'" aria-labelledby="passwordHeader" data-parent="#profileAccordion">
+          <div class="card-body">
+            <app-profile-password></app-profile-password>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="displayHeader">
+          <h2 class="mb-0">
+            <button class="btn btn-link btn-block text-left" [class.collapsed]="card !== 'display'" (click)="toggle('display')" type="button" data-toggle="collapse" data-target="#displayContent" [attr.aria-expanded]="card === 'display' ? 'true' : 'false'" aria-controls="displayContent">
+              Display
+            </button>
+          </h2>
+        </div>
+        <div id="displayContent" class="collapse" [class.show]="card === 'display'" aria-labelledby="displayHeader" data-parent="#profileAccordion">
+          <div class="card-body">
+            <app-profile-display></app-profile-display>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

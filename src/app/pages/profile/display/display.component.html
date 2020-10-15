@@ -1,0 +1,27 @@
+<form class="mx-auto" [formGroup]="form" (ngSubmit)="submit()">
+  <div class="form-check-inline">
+    <label for="check-sync-theme">
+      <input type="checkbox" formControlName="syncTheme" id="check-sync-theme" value="checked"/>
+      <i></i> <span>Sync settings between devices</span>
+    </label>
+  </div>
+
+  <div class="form-group">
+    <div class="form-check-inline">
+      <label for="radio-one" class="radio-inline">
+        <input type="radio" formControlName="theme" name="theme" id="radio-one" value="light"/>
+        <i></i> <span>Light Theme</span>
+      </label>
+    </div>
+    <div class="form-check-inline">
+      <label for="radio-two" class="radio-inline">
+        <input type="radio" formControlName="theme" name="theme" id="radio-two" value="dark"/>
+        <i></i> <span>Dark Theme</span>
+      </label>
+    </div>
+  </div>
+
+  <button type="button" class="btn btn-primary" [disabled]="submitted" (click)="submit()">
+    {{submitted ? 'Saving' : 'Save'}}
+  </button>
+</form>

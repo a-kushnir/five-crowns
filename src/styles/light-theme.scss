@@ -1,0 +1,52 @@
+// Body
+$body-color: #212529;
+$body-bg: #fff;
+$list-group-bg: #fff;
+
+// Forms
+$input-color: #495057;
+$input-bg: #fff;
+
+// List Group
+//$list-group-bg: #303030;
+//$list-group-border-color: #dee2e6;
+
+// Navigation
+$light:                              #e8e9ea;
+//$navbar-light-color:                 rgba(#fff, .5);
+//$navbar-light-hover-color:           rgba(#fff, .75);
+//$navbar-light-active-color:          #fff;
+//$navbar-light-disabled-color:        rgba(#fff, .25);
+//$navbar-light-toggler-border-color:  rgba(#fff, .1);
+
+// Cards
+$card-bg: $body-bg;
+$card-cap-bg: rgba(black, .03);
+$input-disabled-bg: #e9ecef;
+
+@import "~bootstrap/scss/bootstrap";
+
+app-calendar {
+  .date.weekend div {
+    background-color: rgba(#000, .05);
+  }
+  .dow,
+  .date.active div {
+    background-color: rgba(#000, .2);
+  }
+  .complete .dot {
+    background-color: rgba(#000, .2);
+  }
+}
+
+ul li.list-group-item {
+  &.selected-item {
+    background-color: rgba(#000, .05);
+  }
+  &.complete {
+    color: #bbbbbb;
+  }
+  &.sortable-chosen {
+    background-color: rgba(#000, .05);
+  }
+}

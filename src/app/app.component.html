@@ -1,1 +1,9 @@
-Hello World!
+<app-layout-navigation></app-layout-navigation>
+<app-layout-header></app-layout-header>
+<div class="container-fluid">
+  <app-sign-in *ngIf="!user && page === pages.SignIn"></app-sign-in>
+  <app-sign-up *ngIf="!user && page === pages.SignUp"></app-sign-up>
+  <app-home *ngIf="user && page === pages.Home"></app-home>
+  <app-profile *ngIf="user && page === pages.Profile"></app-profile>
+</div>
+<app-layout-footer></app-layout-footer>

@@ -24,16 +24,32 @@
             "tsConfig": "tsconfig.app.json",
             "aot": true,
             "assets": [
-              "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles/application.scss",
+              {
+                "input": "src/styles/light-theme.scss",
+                "bundleName": "light-theme",
+                "inject": false
+              },
+              {
+                "input": "src/styles/dark-theme.scss",
+                "bundleName": "dark-theme",
+                "inject": false
+              }
             ],
-            "scripts": []
+            "scripts": [
+              "./node_modules/jquery/dist/jquery.js",
+              "./node_modules/bootstrap/dist/js/bootstrap.js"
+            ]
           },
           "configurations": {
             "production": {
+              "index": {
+                "input": "src/index.prod.html",
+                "output": "index.html"
+              },
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -88,11 +104,10 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "assets": [
-              "src/favicon.ico",
               "src/assets"
             ],
             "styles": [
-              "src/styles.scss"
+              "src/styles/application.scss"
             ],
             "scripts": []
           }

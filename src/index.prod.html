@@ -7,16 +7,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="assets/favicon-32x32.png" sizes="32x32" type="image/png">
   <link rel="icon" href="assets/favicon-16x16.png" sizes="16x16" type="image/png">
-  <link rel="preload" href="light-theme.js" as="script">
-  <link rel="preload" href="dark-theme.js" as="script">
+  <link rel="preload" href="light-theme.css" as="style">
+  <link rel="preload" href="dark-theme.css" as="style">
   <script>
-    const script = document.createElement('script');
-    const theme = localStorage.getItem('theme')  ?? 'light';
-    script.src = `${theme}-theme.js`;
-    document.getElementsByTagName('head')[0].appendChild(script);
+    const theme = localStorage.getItem('theme') ?? 'light';
+    const link = document.createElement('link');
+    link.href = `${theme}-theme.css`;
+    link.rel = 'stylesheet';
+    document.getElementsByTagName('head')[0].appendChild(link);
   </script>
 </head>
 <body>
-  <app-root></app-root>
+<app-root></app-root>
 </body>
 </html>
