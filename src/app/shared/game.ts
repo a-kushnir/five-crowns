@@ -77,6 +77,14 @@ export class Game {
     return this.isRun(cards) || this.isSet(cards);
   }
 
+  calcPoints(cards: Card[]): number {
+    const {regular, wilds} = this.split(cards);
+    let points = 0;
+    regular.forEach(card => points += card.value)
+    points += 25 * wilds.length;
+    return points;
+  }
+
   deal(players: number): void {
     Game.validateDeal(players);
     this.deck = Game.createDeck();
