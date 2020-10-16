@@ -46,7 +46,7 @@ export class GameListComponent implements OnInit {
       host: player,
       state: SessionStates.Waiting,
       players: [player],
-      maxPlayers: 8
+      maxPlayers: 7
     };
 
     this.sessionService.create(session)
