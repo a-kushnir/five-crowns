@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {LocalStorage} from './local-storage';
-import {AngularFirestore} from '@angular/fire/firestore';
+import {AngularFirestore, CollectionReference} from '@angular/fire/firestore';
 import {RealTimeUpdate} from './real-time-update';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
@@ -56,7 +56,10 @@ export class SessionService {
 
   private listenForUpdates2(): Observable<any> {
     return this
-      .collection()
+      .collection((ref) => ref
+        .where('state', '==', SessionStates.Waiting)
+        .limit(100)
+      )
       .valueChanges({idField: 'id'});
   }
 
