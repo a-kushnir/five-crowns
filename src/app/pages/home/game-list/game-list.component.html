@@ -11,8 +11,8 @@
         </thead>
         <tbody>
         <tr *ngFor="let session of sessions" [class.selected]="selected?.id == session.id" (click)="select(session)">
-          <td>Andrew</td>
-          <td class="text-center">0 / {{session.maxPlayers}}</td>
+          <td>{{session.host.name}}</td>
+          <td class="text-center">{{session.players.length}} / {{session.maxPlayers}}</td>
           <td class="text-center">{{session.password ? 'Yes' : 'No'}}</td>
         </tr>
         <tr *ngIf="sessions.length === 0">

@@ -3,6 +3,7 @@ import {Session, SessionStates} from "../../../shared/models/session.model";
 import {AutoUnsubscribe} from "../../../shared/auto-unsubscribe";
 import {Subscription} from "rxjs";
 import {SessionService} from "../../../shared/session.service";
+import {UserService} from "../../../shared/user.service";
 
 @AutoUnsubscribe
 @Component({
@@ -15,7 +16,8 @@ export class GameListComponent implements OnInit {
   $sessions: Subscription
   selected: Session;
 
-  constructor(private sessionService: SessionService) {
+  constructor(private userService: UserService,
+              private sessionService: SessionService) {
   }
 
   ngOnInit(): void {
@@ -38,7 +40,15 @@ export class GameListComponent implements OnInit {
   }
 
   hostGame(): void {
-    const session = {state: SessionStates.Waiting, maxPlayers: 8};
+    const user = this.userService.user.value;
+    const player = {id: user.id, name: user.name};
+    const session = {
+      host: player,
+      state: SessionStates.Waiting,
+      players: [player],
+      maxPlayers: 8
+    };
+
     this.sessionService.create(session)
       .then((session) => {
         this.sessionService.session.next(session)
@@ -47,6 +57,11 @@ export class GameListComponent implements OnInit {
   }
 
   joinGame(session: Session) {
-    this.sessionService.session.next(session)
+    const user = this.userService.user.value;
+    const player = {id: user.id, name: user.name};
+    session.players.push(player);
+    this.sessionService.update(session).then(() => {
+      this.sessionService.session.next(session)
+    }).catch(error => console.error(error))
   }
 }
