@@ -19,6 +19,9 @@ import {ProfileComponent} from "./pages/profile/profile.component";
 import {AccountComponent} from './pages/profile/account/account.component';
 import {PasswordComponent} from './pages/profile/password/password.component';
 import {DisplayComponent} from './pages/profile/display/display.component';
+import {GameListComponent} from './pages/home/game-list/game-list.component';
+import {GameLobbyComponent} from './pages/home/game-lobby/game-lobby.component';
+import { GameComponent } from './pages/home/game/game.component';
 
 @NgModule({
   declarations: [
@@ -33,7 +36,10 @@ import {DisplayComponent} from './pages/profile/display/display.component';
     ProfileComponent,
     AccountComponent,
     PasswordComponent,
-    DisplayComponent
+    DisplayComponent,
+    GameListComponent,
+    GameLobbyComponent,
+    GameComponent
   ],
   imports: [
     BrowserModule,
