@@ -105,11 +105,11 @@ export class Game {
 
   discard(player: number, card: Card): void {
     this.validatePlayer(player);
-    if (this.hands[player].some(card => card.value == card.value && card.suit == card.suit)) {
+    if (!this.hands[player].some(c => c.value == card.value && c.suit == card.suit)) {
       throw new Error("Player doesn't have the card");
     }
     this.hands[player] =
-      this.hands[player].filter(card => !(card.value == card.value && card.suit == card.suit));
+      this.hands[player].filter(c => !(c.value == card.value && c.suit == card.suit));
     this.open = card;
   }
 

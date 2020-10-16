@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {Session} from "../../../shared/models/session.model";
-import {UserService} from "../../../shared/user.service";
-import {SessionService} from "../../../shared/session.service";
+import {Session} from "src/app/shared/models/session.model";
+import {UserService} from "src/app/shared/user.service";
+import {SessionService} from "src/app/shared/session.service";
+import {Game} from "src/app/shared/game";
+import {Card} from "src/app/shared/models/card.model";
 
 @Component({
   selector: 'app-home-game',
@@ -13,6 +15,7 @@ export class GameComponent implements OnInit {
   $session: Subscription;
   session: Session;
   userId: string;
+  game: Game;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -21,6 +24,8 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
     this.userId = this.userService.user.value.id;
+    this.game = new Game(1);
+    this.game.deal(4);
   }
 
   onSessionChange(session: Session): void {
@@ -29,6 +34,18 @@ export class GameComponent implements OnInit {
       alert('Host left the game');
     }
     this.session = session;
+  }
+
+  drawDeck(): void {
+    this.game.drawDeck(0);
+  }
+
+  drawOpen(): void {
+    this.game.drawOpen(0);
+  }
+
+  discard(card: Card): void {
+    this.game.discard(0, card);
   }
 
   exit() {
