@@ -29,8 +29,8 @@ export class Card {
     return base64[code];
   }
 
-  static decode(card: string): Card {
-    let code = base64.indexOf(card);
+  static decode(value: string): Card {
+    let code = base64.indexOf(value);
     if (code < 0) {
       throw new Error('Invalid Card Code');
     } else if (code == 0) {

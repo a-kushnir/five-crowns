@@ -29,6 +29,18 @@ export class Deck {
     return deck;
   }
 
+  static encode(deck: Deck): string {
+    return deck.cards.map(card => Card.encode(card)).join('');
+  }
+
+  static decode(value: string): Deck {
+    const deck = new Deck();
+    for (const c of value) {
+      deck.cards.push(Card.decode(c));
+    }
+    return deck;
+  }
+
   push(...cards: Card[]): void {
     this.cards.push(...cards);
   }
