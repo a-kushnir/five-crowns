@@ -1,13 +1,13 @@
-import {Card, CardSuits, CardValues} from "./models/card.model";
+import {Card, CardValues} from "./card";
+import {Deck} from "./deck";
 
 export class Game {
 
   readonly round: number;
 
-  deck:  Card[];
-  open:  Card;
-  pile:  Card[];
-  hands: Card[][];
+  deck:  Deck;
+  pile:  Deck;
+  hands: Deck[];
 
   constructor(round: number) {
     if (round < 1) {
@@ -57,7 +57,6 @@ export class Game {
     // No missing cards
     regular.sort((a, b) => a.value < b.value ? -1 : 1);
     const delta = regular[regular.length - 1].value - regular[0].value;
-    debugger;
     return delta - regular.length - wilds.length < 0;
   }
 
@@ -87,30 +86,37 @@ export class Game {
 
   deal(players: number): void {
     Game.validateDeal(players);
-    this.deck = Game.createDeck();
-    Game.shuffle(this.deck);
-    this.createHands(players);
+    this.deck = Deck.create();
+    this.deck.shuffle();
+
+    this.hands = [];
+    for(let player = 0; player < players; player++) {
+      const hand = new Deck();
+      hand.push(...this.deck.drawCards(this.round + 2));
+      this.hands.push(hand);
+    }
+
+    this.pile = new Deck();
+    this.pile.push(this.deck.drawCard());
   }
 
   drawOpen(player: number): void {
     this.validatePlayer(player);
-    this.hands[player].push(this.open);
-    this.open = null;
+    const card = this.pile.drawCard();
+    this.hands[player].push(card);
   }
 
   drawDeck(player: number): void {
     this.validatePlayer(player);
-    this.hands[player].push(this.drawNext());
+    const card = this.drawCard();
+    this.hands[player].push(card);
   }
 
-  discard(player: number, card: Card): void {
+  discard(player: number, index: number): void {
     this.validatePlayer(player);
-    if (!this.hands[player].some(c => c.value == card.value && c.suit == card.suit)) {
-      throw new Error("Player doesn't have the card");
-    }
-    this.hands[player] =
-      this.hands[player].filter(c => !(c.value == card.value && c.suit == card.suit));
-    this.open = card;
+    const hand = this.hands[player];
+    const card = hand.discard(index);
+    this.pile.push(card);
   }
 
   private static validateDeal(players: number): void {
@@ -121,62 +127,23 @@ export class Game {
     }
   }
 
-  validatePlayer(player: number) {
+  private validatePlayer(player: number) {
     if (player < 0 || player >= this.hands.length) {
       throw new Error('Invalid player index');
     }
   }
 
-  private static createDeck(): Card[] {
-    let deck: Card[] = [];
-
-    const decks = 2;
-    for (let count = 1; count <= decks; count++) {
-      Object.keys(CardSuits).forEach(suit => {
-        for (let value = 3; value <= CardValues.King; value++) {
-          deck.push({value, suit: suit})
-        }
-      });
-      for (let count = 1; count <= 3; count++) {
-        deck.push({value: CardValues.Joker})
-      }
+  private drawCard(): Card {
+    let card = this.deck.drawCard();
+    if (!card) {
+      const cards = this.pile.drawCards(this.pile.length - 2);
+      this.deck.push(...cards);
+      this.deck.shuffle();
+      card = this.deck.drawCard();
     }
-
-    return deck;
-  }
-
-  // Fisher-Yates (aka Knuth) Shuffle
-  private static shuffle(array: any[]): void {
-    let currentIndex = array.length, temporaryValue, randomIndex;
-    while (0 !== currentIndex) {
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex -= 1;
-      temporaryValue = array[currentIndex];
-      array[currentIndex] = array[randomIndex];
-      array[randomIndex] = temporaryValue;
+    if (!card) {
+      throw new Error("Can't draw a card from deck");
     }
-  }
-
-  private drawNext(): Card {
-    if (this.deck.length === 0) {
-      this.deck = this.pile;
-      this.pile = [];
-      Game.shuffle(this.deck);
-    }
-    return this.deck.splice(0,1)[0];
-  }
-
-  private createHands(players: number): void {
-    this.hands = [];
-    for(let player = 0; player < players; player++) {
-      this.hands.push([]);
-    }
-    for(let i = -2; i < this.round; i++) {
-      for(let player = 0; player < players; player++) {
-        this.hands[player].push(this.drawNext());
-      }
-    }
-    this.open = this.drawNext();
-    this.pile = [];
+    return card;
   }
 }

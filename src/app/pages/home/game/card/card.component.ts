@@ -1,5 +1,5 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {Card, CardSuits, CardValues} from "src/app/shared/models/card.model";
+import {Card, CardSuits, CardValues} from "src/app/shared/game/card";
 
 @Component({
   selector: 'app-game-card',

@@ -3,7 +3,7 @@ export enum CardValues {
   Jack = 11,
   Queen = 12,
   King = 13,
-  Joker = 25,
+  Joker = 0,
 }
 
 export enum CardSuits {

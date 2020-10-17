@@ -3,8 +3,7 @@ import {Subscription} from "rxjs";
 import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
-import {Game} from "src/app/shared/game";
-import {Card} from "src/app/shared/models/card.model";
+import {Game} from "src/app/shared/game/game";
 
 @Component({
   selector: 'app-home-game',
@@ -44,8 +43,8 @@ export class GameComponent implements OnInit {
     this.game.drawOpen(0);
   }
 
-  discard(card: Card): void {
-    this.game.discard(0, card);
+  discard(index: number): void {
+    this.game.discard(0, index);
   }
 
   exit() {
