@@ -11,6 +11,14 @@ export class Deck {
     return this.length === 0;
   }
 
+  get first(): Card {
+    return this.cards.length > 0 ? this.cards[0] : null;
+  }
+
+  get last(): Card {
+    return this.cards.length > 0 ? this.cards[this.cards.length - 1] : null;
+  }
+
   static create(): Deck {
     let deck = new Deck();
 
@@ -50,7 +58,7 @@ export class Deck {
   }
 
   drawCards(count: number): Card[] {
-    return this.length >= count ? this.cards.splice(0, count) : [];
+    return this.length >= count ? this.cards.splice(-count, count) : [];
   }
 
   discard(index: number): Card {

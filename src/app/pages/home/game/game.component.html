@@ -5,7 +5,7 @@
   <h4>Open:</h4>
   <div class="row">
     <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
-    <app-game-card [card]="game.pile.cards[0]" (click)="drawOpen()"></app-game-card>
+    <app-game-card [card]="openCard" (click)="drawOpen()"></app-game-card>
   </div>
 
   <h4>Hand:</h4>

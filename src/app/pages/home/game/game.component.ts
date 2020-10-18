@@ -6,6 +6,7 @@ import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Deck} from "src/app/shared/game/deck";
+import {Card} from "../../../shared/game/card";
 
 @Component({
   selector: 'app-home-game',
@@ -31,6 +32,7 @@ export class GameComponent implements OnInit {
     this.userId = this.userService.user.value.id;
     this.isHost = this.session.hostId == this.userId;
     this.playerIndex = this.session.players.findIndex(player => player.id === this.userId);
+    this.decode();
   }
 
   onSessionChange(session: Session): void {
@@ -48,6 +50,10 @@ export class GameComponent implements OnInit {
     }
 
     this.decode();
+  }
+
+  get openCard(): Card {
+    return this.game?.pile?.last;
   }
 
   deal(round: number): void {
@@ -109,7 +115,7 @@ export class GameComponent implements OnInit {
 
   decode(): void {
     const session = this.session;
-    if (session.deck && session.pile) {
+    if (session.deck) {
       this.game = new Game(session.round);
       this.game.deck = Deck.decode(session.deck);
       this.game.pile = Deck.decode(session.pile);

@@ -1,11 +1,11 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {Card, CardSuits, CardValues} from "src/app/shared/game/card";
+import {Component, Input, OnChanges} from '@angular/core';
+import {Card, CardValues} from "src/app/shared/game/card";
 
 @Component({
   selector: 'app-game-card',
   templateUrl: './card.component.html',
 })
-export class CardComponent implements OnInit {
+export class CardComponent implements OnChanges {
 
   @Input() card: Card;
   @Input() collapsed: boolean;
@@ -16,7 +16,7 @@ export class CardComponent implements OnInit {
   constructor() {
   }
 
-  ngOnInit(): void {
+  ngOnChanges(): void {
     if (!this.card) {
       this.image = 'cardBack@3x';
       this.text = 'Card Back';
