@@ -61,6 +61,9 @@ export class GameComponent implements OnInit {
     this.session.phase = 1;
     this.session.current = 0;
     this.session.winner = null;
+    if (round == 1) {
+      this.session.players.forEach(player => player.score = 0);
+    }
 
     this.game = new Game(this.session.round);
     this.game.deal(this.session.players.length);
@@ -88,9 +91,16 @@ export class GameComponent implements OnInit {
     }
   }
 
+  isSetOrRun(): boolean {
+    return this.game.isRunOrSet(this.game.hands[this.playerIndex].cards);
+  }
+
   discard(index: number): void {
     if (this.session.current === this.playerIndex && this.session.phase === 2) {
       this.game.discard(this.playerIndex, index);
+      if (this.isSetOrRun()) {
+        this.session.winner = this.playerIndex;
+      }
 
       this.session.phase = 1;
       this.session.current++;
