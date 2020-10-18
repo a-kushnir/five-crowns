@@ -120,7 +120,7 @@ export class Game {
   }
 
   private static validateDeal(players: number): void {
-    if (players <= 1) {
+    if (players < 1) { // if (players <= 1) {
       throw new Error('Player count should be more than 1');
     } else if (players >= 8) {
       throw new Error('Player count should be less than 8');

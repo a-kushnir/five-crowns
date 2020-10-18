@@ -25,7 +25,7 @@ export class GameLobbyComponent implements OnInit {
 
   onSessionChange(session: Session): void {
     const user = this.userService.user.value;
-    if (!session && this.session.host.id !== user.id) {
+    if (!session && this.session.hostId !== user.id) {
       alert('Host left the game');
     }
     this.session = session;
@@ -39,7 +39,7 @@ export class GameLobbyComponent implements OnInit {
 
   exit() {
     const user = this.userService.user.value;
-    if (this.session.host.id === user.id) {
+    if (this.session.hostId === user.id) {
       this.sessionService.delete(this.session)
         .then(() => this.sessionService.session.next(null))
         .catch(error => console.error(error));

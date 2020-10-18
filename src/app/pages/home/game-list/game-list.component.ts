@@ -43,7 +43,7 @@ export class GameListComponent implements OnInit {
     const user = this.userService.user.value;
     const player = {id: user.id, name: user.name};
     const session = {
-      host: player,
+      hostId: user.id,
       state: SessionStates.Waiting,
       players: [player],
       maxPlayers: 7

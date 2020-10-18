@@ -4,6 +4,7 @@ import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
+import {Deck} from "src/app/shared/game/deck";
 
 @Component({
   selector: 'app-home-game',
@@ -24,12 +25,13 @@ export class GameComponent implements OnInit {
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
     this.userId = this.userService.user.value.id;
     this.game = new Game(1);
-    this.game.deal(4);
+    this.game.deal(this.session.players.length);
+    this.update();
   }
 
   onSessionChange(session: Session): void {
     const user = this.userService.user.value;
-    if (!session && this.session.host.id !== user.id) {
+    if (!session && this.session.hostId !== user.id) {
       alert('Host left the game');
     }
     this.session = session;
@@ -43,13 +45,23 @@ export class GameComponent implements OnInit {
     this.game.drawOpen(0);
   }
 
+  update(): void {
+    this.session.deck = Deck.encode(this.game.deck);
+    this.session.pile = Deck.encode(this.game.pile);
+    for(let i = 0; i < this.game.hands.length; i++) {
+      this.session.players[i].hand = Deck.encode(this.game.hands[i]);
+    }
+    this.sessionService.update(this.session)
+      .catch(error => console.error(error));
+  }
+
   discard(index: number): void {
     this.game.discard(0, index);
   }
 
   exit() {
     const user = this.userService.user.value;
-    if (this.session.host.id === user.id) {
+    if (this.session.hostId === user.id) {
       this.sessionService.delete(this.session)
         .then(() => this.sessionService.session.next(null))
         .catch(error => console.error(error));

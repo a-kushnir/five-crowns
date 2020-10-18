@@ -1,3 +1,4 @@
+import {Player} from "./player.model";
 
 export enum SessionStates {
   Waiting = 'Waiting',
@@ -5,18 +6,15 @@ export enum SessionStates {
   Closed = 'Closed',
 }
 
-export class Player {
-  id: string;
-  name: string;
-}
-
 export class Session {
   id?: string;
-  host: Player;
+  hostId: string;
   players: Player[];
   state: SessionStates;
   round?: number;
   player?: number;
   maxPlayers: number;
   password?: string;
+  deck?: string;
+  pile?: string;
 }

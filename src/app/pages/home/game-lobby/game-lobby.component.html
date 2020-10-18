@@ -1,6 +1,6 @@
 <div class="row">
   <div class="col-12">
-    <h3 class="text-center">{{session.host.id == userId ? 'Game Server' : 'Joined to Game Server'}}</h3>
+    <h3 class="text-center">{{session.hostId == userId ? 'Game Server' : 'Joined to Game Server'}}</h3>
     <div class="max-width-limit mx-auto">
       <table class="table table-hover">
         <thead>
@@ -17,7 +17,7 @@
     </div>
     <div class="max-width-limit mx-auto">
       <div class="mx-auto" style="width: max-content;">
-        <button class="btn btn-primary" *ngIf="session.host.id == userId" (click)="start()">Start</button>
+        <button class="btn btn-primary" *ngIf="session.hostId == userId" (click)="start()">Start</button>
         <button class="btn btn-primary" (click)="exit()">Exit</button>
       </div>
     </div>
