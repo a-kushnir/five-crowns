@@ -35,8 +35,7 @@ export class GameComponent implements OnInit {
 
   onSessionChange(session: Session): void {
     if (this.isHost && !session.round) {
-      session.round = 1;
-      this.deal();
+      this.deal(1);
     }
 
     if (_.isEqual(this.session, session)) {
@@ -51,7 +50,12 @@ export class GameComponent implements OnInit {
     this.decode();
   }
 
-  deal(): void {
+  deal(round: number): void {
+    this.session.round = round;
+    this.session.phase = 1;
+    this.session.current = 0;
+    this.session.winner = null;
+
     this.game = new Game(this.session.round);
     this.game.deal(this.session.players.length);
     this.encode();
@@ -59,15 +63,37 @@ export class GameComponent implements OnInit {
   }
 
   drawDeck(): void {
-    this.game.drawDeck(this.playerIndex);
+    if (this.session.current === this.playerIndex && this.session.phase === 1) {
+      this.game.drawDeck(this.playerIndex);
+
+      this.session.phase = 2;
+      this.encode();
+      this.update();
+    }
   }
 
   drawOpen(): void {
-    this.game.drawOpen(this.playerIndex);
+    if (this.session.current === this.playerIndex && this.session.phase === 1) {
+      this.game.drawOpen(this.playerIndex);
+
+      this.session.phase = 2;
+      this.encode();
+      this.update();
+    }
   }
 
   discard(index: number): void {
-    this.game.discard(this.playerIndex, index);
+    if (this.session.current === this.playerIndex && this.session.phase === 2) {
+      this.game.discard(this.playerIndex, index);
+
+      this.session.phase = 1;
+      this.session.current++;
+      if (this.session.current >= this.session.players.length) {
+        this.session.current = 0;
+      }
+      this.encode();
+      this.update();
+    }
   }
 
   encode(): void {

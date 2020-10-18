@@ -1,8 +1,9 @@
 <div *ngIf="game">
   <h3>Round: {{game.round}}</h3>
+  <h3>Phase: {{this.session.current === this.playerIndex ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}}</h3>
 
   <h4>Open:</h4>
-  <div class="row" *ngIf="game">
+  <div class="row">
     <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
     <app-game-card [card]="game.pile.cards[0]" (click)="drawOpen()"></app-game-card>
   </div>

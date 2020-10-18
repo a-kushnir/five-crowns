@@ -12,7 +12,9 @@ export class Session {
   players: Player[];
   state: SessionStates;
   round?: number;
-  player?: number;
+  phase?: number;
+  current?: number;
+  winner?: number;
   maxPlayers: number;
   password?: string;
   deck?: string;
