@@ -19,6 +19,7 @@ export class GameComponent implements OnInit {
   session: Session;
   isHost: boolean;
   game: Game;
+  playerIndex: number;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -29,9 +30,15 @@ export class GameComponent implements OnInit {
     this.session = this.sessionService.session.value;
     this.userId = this.userService.user.value.id;
     this.isHost = this.session.hostId == this.userId;
+    this.playerIndex = this.session.players.findIndex(player => player.id === this.userId);
   }
 
   onSessionChange(session: Session): void {
+    if (this.isHost && !session.round) {
+      session.round = 1;
+      this.deal();
+    }
+
     if (_.isEqual(this.session, session)) {
       return;
     }
@@ -39,10 +46,6 @@ export class GameComponent implements OnInit {
     this.session = session;
     if (!session && !this.isHost) {
       alert('Host left the game');
-    }
-    if (this.isHost && !session.round) {
-      session.round = 1;
-      this.deal();
     }
 
     this.decode();
@@ -56,30 +59,38 @@ export class GameComponent implements OnInit {
   }
 
   drawDeck(): void {
-    this.game.drawDeck(0);
+    this.game.drawDeck(this.playerIndex);
   }
 
   drawOpen(): void {
-    this.game.drawOpen(0);
+    this.game.drawOpen(this.playerIndex);
   }
 
   discard(index: number): void {
-    this.game.discard(0, index);
+    this.game.discard(this.playerIndex, index);
   }
 
   encode(): void {
-    this.session.deck = Deck.encode(this.game.deck);
-    this.session.pile = Deck.encode(this.game.pile);
-    for(let i = 0; i < this.game.hands.length; i++) {
-      this.session.players[i].hand = Deck.encode(this.game.hands[i]);
+    const game = this.game;
+    if (game) {
+      this.session.deck = Deck.encode(game.deck);
+      this.session.pile = Deck.encode(game.pile);
+      for(let i = 0; i < game.hands.length; i++) {
+        this.session.players[i].hand = Deck.encode(game.hands[i]);
+      }
     }
   }
 
   decode(): void {
-    this.game.deck = Deck.decode(this.session.deck);
-    this.game.pile = Deck.decode(this.session.pile);
-    for(let i = 0; i < this.game.hands.length; i++) {
-      this.game.hands[i] = Deck.decode(this.session.players[i].hand);
+    const session = this.session;
+    if (session.deck && session.pile) {
+      this.game = new Game(session.round);
+      this.game.deck = Deck.decode(session.deck);
+      this.game.pile = Deck.decode(session.pile);
+      this.game.hands = [];
+      for(let i = 0; i < session.players.length; i++) {
+        this.game.hands[i] = Deck.decode(session.players[i].hand);
+      }
     }
   }
 
