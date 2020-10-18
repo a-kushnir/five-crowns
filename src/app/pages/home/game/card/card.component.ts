@@ -8,6 +8,8 @@ import {Card, CardSuits, CardValues} from "src/app/shared/game/card";
 export class CardComponent implements OnInit {
 
   @Input() card: Card;
+  @Input() collapsed: boolean;
+
   image: string;
   text: string;
 

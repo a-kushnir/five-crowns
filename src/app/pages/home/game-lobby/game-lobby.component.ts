@@ -1,8 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {Session, SessionStates} from "../../../shared/models/session.model";
-import {SessionService} from "../../../shared/session.service";
-import {UserService} from "../../../shared/user.service";
+import _ from 'lodash';
+import {Session, SessionStates} from "src/app/shared/models/session.model";
+import {SessionService} from "src/app/shared/session.service";
+import {UserService} from "src/app/shared/user.service";
 
 @Component({
   selector: 'app-home-game-lobby',
@@ -10,9 +11,10 @@ import {UserService} from "../../../shared/user.service";
   styleUrls: ['./game-lobby.component.scss']
 })
 export class GameLobbyComponent implements OnInit {
-  $session: Subscription;
+
+  private $session: Subscription;
   session: Session;
-  userId: string;
+  isHost: boolean;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -20,12 +22,17 @@ export class GameLobbyComponent implements OnInit {
 
   ngOnInit(): void {
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
-    this.userId = this.userService.user.value.id;
+    this.session = this.sessionService.session.value;
+    const userId = this.userService.user.value.id;
+    this.isHost = this.session.hostId == userId;
   }
 
   onSessionChange(session: Session): void {
-    const user = this.userService.user.value;
-    if (!session && this.session.hostId !== user.id) {
+    if (_.isEqual(this.session, session)) {
+      return;
+    }
+
+    if (!session && !this.isHost) {
       alert('Host left the game');
     }
     this.session = session;

@@ -1,5 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
+import _ from 'lodash';
 import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
@@ -12,9 +13,11 @@ import {Deck} from "src/app/shared/game/deck";
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
-  $session: Subscription;
+
+  private $session: Subscription;
+  private userId: string;
   session: Session;
-  userId: string;
+  isHost: boolean;
   game: Game;
 
   constructor(private userService: UserService,
@@ -23,18 +26,33 @@ export class GameComponent implements OnInit {
 
   ngOnInit(): void {
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
+    this.session = this.sessionService.session.value;
     this.userId = this.userService.user.value.id;
-    this.game = new Game(1);
-    this.game.deal(this.session.players.length);
-    this.update();
+    this.isHost = this.session.hostId == this.userId;
   }
 
   onSessionChange(session: Session): void {
-    const user = this.userService.user.value;
-    if (!session && this.session.hostId !== user.id) {
+    if (_.isEqual(this.session, session)) {
+      return;
+    }
+
+    this.session = session;
+    if (!session && !this.isHost) {
       alert('Host left the game');
     }
-    this.session = session;
+    if (this.isHost && !session.round) {
+      session.round = 1;
+      this.deal();
+    }
+
+    this.decode();
+  }
+
+  deal(): void {
+    this.game = new Game(this.session.round);
+    this.game.deal(this.session.players.length);
+    this.encode();
+    this.update();
   }
 
   drawDeck(): void {
@@ -45,18 +63,29 @@ export class GameComponent implements OnInit {
     this.game.drawOpen(0);
   }
 
-  update(): void {
+  discard(index: number): void {
+    this.game.discard(0, index);
+  }
+
+  encode(): void {
     this.session.deck = Deck.encode(this.game.deck);
     this.session.pile = Deck.encode(this.game.pile);
     for(let i = 0; i < this.game.hands.length; i++) {
       this.session.players[i].hand = Deck.encode(this.game.hands[i]);
     }
-    this.sessionService.update(this.session)
-      .catch(error => console.error(error));
   }
 
-  discard(index: number): void {
-    this.game.discard(0, index);
+  decode(): void {
+    this.game.deck = Deck.decode(this.session.deck);
+    this.game.pile = Deck.decode(this.session.pile);
+    for(let i = 0; i < this.game.hands.length; i++) {
+      this.game.hands[i] = Deck.decode(this.session.players[i].hand);
+    }
+  }
+
+  update(): void {
+    this.sessionService.update(this.session)
+      .catch(error => console.error(error));
   }
 
   exit() {
