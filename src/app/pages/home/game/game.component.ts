@@ -133,7 +133,7 @@ export class GameComponent implements OnInit {
 
   deal(round: number): void {
     this.session.phase = 1;
-    this.session.current = Math.floor((round - 1) / this.session.players.length);
+    this.session.current = (round - 1) % this.session.players.length;
     this.session.winner = null;
     this.game.deal(round);
     this.serialize();
