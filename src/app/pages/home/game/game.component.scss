@@ -5,9 +5,13 @@
   border: 1px dashed rgba(0, 0, 0, 0.5);
   height: 219px;
   background-color: rgba(0, 0, 0, 0.05);
+  min-width: 100px;
   &.run-or-set {
     border-color: #9AB87A;
     background-color: rgba(154, 184, 122, 0.5);
+  }
+  &.has-score {
+    padding-right: 50px;
   }
 }
 .player-hand-score {

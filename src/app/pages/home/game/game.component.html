@@ -19,13 +19,10 @@
       </tr>
       </tbody>
     </table>
+    <p>Wilds are {{game.round + 2}}'s</p>
     <button class="btn btn-primary float-right" (click)="exit()">Exit</button>
   </div>
 
-  <h3>Round: {{game.round}}. Wilds are {{game.round + 2}}'s</h3>
-  <h3>Phase: {{this.session.current === this.game.playerIdx ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}} {{session.winner !== null ? '(Last Turn)' : null}}</h3>
-
-  <h4>Open:</h4>
   <div class="row">
     <div class="player-hand rounded">
       <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
@@ -35,14 +32,15 @@
     </div>
   </div>
 
-  <h4>Hand:</h4>
+  <p>{{session.current === game.playerIdx ? (session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Waiting for ' + game.players[session.current].name }} {{session.winner !== null ? ' !Last Turn!' : null}}</p>
+
   <div class="row">
     <div class="col-sm flex-row" *ngFor="let hand of game.player.hands; let handIdx = index">
       <div class="player-hand-score" *ngIf="hand.score(game.round) > 0">
         <div>{{hand.score(game.round)}}</div>
       </div>
 
-      <div class="d-flex player-hand rounded" [class.run-or-set]="game.isRunOrSet(hand)"
+      <div class="d-flex player-hand rounded" [class.run-or-set]="game.isRunOrSet(hand)" [class.has-score]="hand.score(game.round) > 0"
            [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
         <app-game-card *ngFor="let card of hand.cards; index as cardIdx"
                        class="flex-left" [card]="card" (click)="discard(handIdx, cardIdx)">

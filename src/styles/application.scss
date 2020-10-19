@@ -11,9 +11,7 @@
   &:last-child {
     width: 132px;
   }
-}
-.sortable-chosen {
-  .game-card {
-    width: 132px;
+  &.sortable-ghost {
+    width: 132px !important;
   }
 }
