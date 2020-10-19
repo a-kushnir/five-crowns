@@ -5,7 +5,6 @@ import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
-import {Deck} from "src/app/shared/game/deck";
 import {Card} from "../../../shared/game/card";
 import {Player} from "../../../shared/models/player.model";
 import {faGamepad} from '@fortawesome/free-solid-svg-icons';
@@ -41,7 +40,7 @@ export class GameComponent implements OnInit {
     this.userId = this.userService.user.value.id;
     this.isHost = this.session.hostId == this.userId;
     this.playerIndex = this.session.players.findIndex(player => player.id === this.userId);
-    this.decode();
+    this.deserialize();
   }
 
   onSessionChange(session: Session): void {
@@ -58,7 +57,7 @@ export class GameComponent implements OnInit {
       alert('Host left the game');
     }
 
-    this.decode();
+    this.deserialize();
   }
 
   onSortUpdate(): void {
@@ -77,13 +76,13 @@ export class GameComponent implements OnInit {
     this.session.phase = 1;
     this.session.current = 0;
     this.session.winner = null;
-    if (round == 1) {
+    if (round === 1) {
       this.session.players.forEach(player => player.score = 0);
     }
 
-    this.game = new Game(this.session.round);
-    this.game.deal(this.session.players.length);
-    this.encode();
+    this.deserialize();
+    this.game.deal();
+    this.serialize();
     this.update();
   }
 
@@ -92,7 +91,7 @@ export class GameComponent implements OnInit {
       this.game.drawDeck(this.playerIndex);
 
       this.session.phase = 2;
-      this.encode();
+      this.serialize();
       this.update();
     }
   }
@@ -102,26 +101,30 @@ export class GameComponent implements OnInit {
       this.game.drawOpen(this.playerIndex);
 
       this.session.phase = 2;
-      this.encode();
+      this.serialize();
       this.update();
     }
   }
 
-  isSetOrRun(): boolean {
-    return this.game.isRunOrSet(this.game.hands[this.playerIndex].cards);
+  isSetOrRun(hand: number): boolean {
+    return this.game.isRunOrSet(this.game.players[this.playerIndex].hands[hand].cards);
   }
 
-  discard(index: number): void {
+  discard(hand: number, card: number): void {
     if (this.session.current === this.playerIndex && this.session.phase === 2) {
-      this.game.discard(this.playerIndex, index);
+      this.game.discard(this.playerIndex, hand, card);
 
-      if (this.isSetOrRun()) {
+      if (this.isSetOrRun(hand)) { // TODO check all hands!
         if (!this.session.winner) {
           this.session.winner = this.playerIndex;
         }
       } else {
         if (this.session.winner) {
-          this.player.score += this.game.score(this.game.hands[this.playerIndex].cards);
+          this.game.players[this.playerIndex].hands.forEach(hand => {
+            if (!this.game.isRunOrSet(hand.cards)) {
+              this.player.score += this.game.score(hand.cards);
+            }
+          })
         }
       }
 
@@ -134,33 +137,22 @@ export class GameComponent implements OnInit {
         this.deal(this.session.round + 1);
       }
 
-      this.encode();
+      this.serialize();
       this.update();
     }
   }
 
-  encode(): void {
-    const game = this.game;
-    if (game) {
-      this.session.deck = Deck.encode(game.deck);
-      this.session.pile = Deck.encode(game.pile);
-      for(let i = 0; i < game.hands.length; i++) {
-        this.session.players[i].hand = Deck.encode(game.hands[i]);
-      }
+  serialize(): void {
+    if (this.game) {
+      Game.serialize(this.game, this.session);
     }
   }
 
-  decode(): void {
-    const session = this.session;
-    if (session.deck) {
-      this.game = new Game(session.round);
-      this.game.deck = Deck.decode(session.deck);
-      this.game.pile = Deck.decode(session.pile);
-      this.game.hands = [];
-      for(let i = 0; i < session.players.length; i++) {
-        this.game.hands[i] = Deck.decode(session.players[i].hand);
-      }
+  deserialize(): void {
+    if (!this.game) {
+      this.game = new Game();
     }
+    Game.deserialize(this.game, this.session);
   }
 
   update(): void {

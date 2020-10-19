@@ -21,7 +21,7 @@ export class Card {
   value: number;
   suit?: string;
 
-  static encode(card: Card): string {
+  static serialize(card: Card): string {
     let code = 0;
     if (card.value !== CardValues.Joker) {
       code = (card.value - 3) * suits.length + suits.indexOf(card.suit) + 1;
@@ -29,7 +29,7 @@ export class Card {
     return base64[code];
   }
 
-  static decode(value: string): Card {
+  static deserialize(value: string): Card {
     let code = base64.indexOf(value);
     if (code < 0) {
       throw new Error('Invalid Card Code');

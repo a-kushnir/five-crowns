@@ -37,14 +37,16 @@ export class Deck {
     return deck;
   }
 
-  static encode(deck: Deck): string {
-    return deck.cards.map(card => Card.encode(card)).join('');
+  static serialize(deck: Deck): string {
+    return deck.cards.map(card => Card.serialize(card)).join('');
   }
 
-  static decode(value: string): Deck {
+  static deserialize(value: string): Deck {
     const deck = new Deck();
-    for (const c of value) {
-      deck.cards.push(Card.decode(c));
+    if (value) {
+      for (const c of value) {
+        deck.cards.push(Card.deserialize(c));
+      }
     }
     return deck;
   }

@@ -1,21 +1,54 @@
 import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
+import {Player} from "./player";
+import {Session} from "../models/session.model";
 
 export class Game {
 
-  readonly round: number;
-
+  round: number;
   deck:  Deck;
   pile:  Deck;
-  hands: Deck[];
+  players: Player[];
 
-  constructor(round: number) {
-    if (round < 1) {
-      throw new Error('Round should be more than 1');
-    } else if (round > 11) {
-      throw new Error('Round should be less than 11');
-    }
-    this.round = round;
+  constructor() {
+  }
+
+  static serialize(game: Game, session: Session) {
+    debugger;
+    session.round = game.round;
+    session.deck = Deck.serialize(game.deck);
+    session.pile = Deck.serialize(game.pile);
+    game.players.forEach(player => {
+      const p = session.players.find(p => p.id === player.id);
+      if (p) {
+        p.score = player.score;
+        p.hands = [];
+        player.hands.forEach(hand => {
+          p.hands.push(Deck.serialize(hand));
+        });
+      }
+    });
+  }
+
+  static deserialize(game: Game, session: Session) {
+    game.round = session.round;
+    game.deck = Deck.deserialize(session.deck);
+    game.pile = Deck.deserialize(session.pile);
+
+    game.players =
+      session.players.map(player => {
+        const p = new Player();
+        p.id = player.id;
+        p.name = player.name;
+        p.score = player.score;
+        p.hands = [];
+        if (player.hands) {
+          player.hands.forEach(hand => {
+            p.hands.push(Deck.deserialize(hand));
+          });
+        }
+        return p;
+      })
   }
 
   isWild(card: Card): boolean {
@@ -84,17 +117,20 @@ export class Game {
     return points;
   }
 
-  deal(players: number): void {
-    Game.validateDeal(players);
+  deal(): void {
+    Game.validateDeal(this.round, this.players.length);
+
     this.deck = Deck.create();
     this.deck.shuffle();
 
-    this.hands = [];
-    for(let player = 0; player < players; player++) {
+    this.players.forEach(player => {
       const hand = new Deck();
       hand.push(...this.deck.drawCards(this.round + 2));
-      this.hands.push(hand);
-    }
+      player.hands.push(hand);
+      for (let i = 0; i < 4; i++) {
+        player.hands.push(new Deck());
+      }
+    });
 
     this.pile = new Deck();
     this.pile.push(this.deck.drawCard());
@@ -103,24 +139,27 @@ export class Game {
   drawOpen(player: number): void {
     this.validatePlayer(player);
     const card = this.pile.drawCard();
-    this.hands[player].push(card);
+    this.players[player].hands[0].push(card);
   }
 
   drawDeck(player: number): void {
     this.validatePlayer(player);
     const card = this.drawCard();
-    this.hands[player].push(card);
+    this.players[player].hands[0].push(card);
   }
 
-  discard(player: number, index: number): void {
+  discard(player: number, hand: number, card: number): void {
     this.validatePlayer(player);
-    const hand = this.hands[player];
-    const card = hand.discard(index);
-    this.pile.push(card);
+    const c = this.players[player].hands[hand].discard(card);
+    this.pile.push(c);
   }
 
-  private static validateDeal(players: number): void {
-    if (players < 1) { // if (players <= 1) {
+  private static validateDeal(round: number, players: number): void {
+    if (round < 1) {
+      throw new Error('Round should be more than 1');
+    } else if (round > 11) {
+      throw new Error('Round should be less than 11');
+    } else if (players <= 1) {
       throw new Error('Player count should be more than 1');
     } else if (players >= 8) {
       throw new Error('Player count should be less than 8');
@@ -128,7 +167,7 @@ export class Game {
   }
 
   private validatePlayer(player: number) {
-    if (player < 0 || player >= this.hands.length) {
+    if (player < 0 || player >= this.players.length) {
       throw new Error('Invalid player index');
     }
   }
