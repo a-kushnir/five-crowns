@@ -110,6 +110,8 @@ export class GameComponent implements OnInit {
 
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       this.playAudio(AudioAssets.CardMoved);
+      this.serialize();
+      this.update();
     } else if (src === 'openCard') {
       if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
         this.drawOpen(Number(dst), true);
