@@ -91,6 +91,11 @@ export class GameComponent implements OnInit {
   }
 
   discard(hand: number, card: number): void {
+    alert(`this.session = ${JSON.stringify(this.session)}`)
+    alert(`this.game = ${JSON.stringify(this.game)}`)
+    alert(`hand = ${hand}`)
+    alert(`card = ${card}`)
+    
     if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
       this.game.discard(hand, card);
 
