@@ -17,7 +17,8 @@
     </div>
     <div class="max-width-limit mx-auto">
       <div class="mx-auto" style="width: max-content;">
-        <button class="btn btn-primary" *ngIf="isHost" (click)="start()">Start</button>
+        <button class="btn btn-primary" [class.btn-primary]="ready" [class.btn-secondary]="!ready"
+                [disabled]="!ready" *ngIf="isHost" (click)="start()">Start</button>
         <button class="btn btn-primary" (click)="exit()">Exit</button>
       </div>
     </div>

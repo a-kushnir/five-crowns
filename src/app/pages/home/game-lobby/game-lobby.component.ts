@@ -15,6 +15,7 @@ export class GameLobbyComponent implements OnInit {
   private $session: Subscription;
   session: Session;
   isHost: boolean;
+  ready: boolean;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -30,6 +31,10 @@ export class GameLobbyComponent implements OnInit {
   onSessionChange(session: Session): void {
     if (_.isEqual(this.session, session)) {
       return;
+    }
+
+    if (session) {
+      this.ready = session.players.length > 1;
     }
 
     if (!session && !this.isHost) {
