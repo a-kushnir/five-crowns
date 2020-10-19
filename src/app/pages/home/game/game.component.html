@@ -23,7 +23,7 @@
   </div>
 
   <h3>Round: {{game.round}}. Wilds are {{game.round + 2}}'s</h3>
-  <h3>Phase: {{this.session.current === this.playerIndex ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}} {{session.winner !== null ? '(Last Turn)' : null}}</h3>
+  <h3>Phase: {{this.session.current === this.game.playerIdx ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}} {{session.winner !== null ? '(Last Turn)' : null}}</h3>
 
   <h4>Open:</h4>
   <div class="row">
@@ -32,7 +32,7 @@
   </div>
 
   <h4>Hand:</h4>
-  <div class="row" style="border: 1px dashed black; height: 207px;" [class.win]="isSetOrRun(0)" *ngFor="let hand of game.players[playerIndex].hands; let handIdx = index" [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
+  <div class="row" style="border: 1px dashed black; height: 207px;" [class.win]="isSetOrRun(0)" *ngFor="let hand of game.player.hands; let handIdx = index" [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
     <div *ngFor="let card of hand.cards; index as cardIdx">
       <app-game-card [card]="card" [collapsed]="true" (click)="discard(handIdx, cardIdx)"></app-game-card>
     </div>

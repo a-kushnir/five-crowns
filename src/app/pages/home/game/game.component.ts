@@ -6,7 +6,6 @@ import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
-import {Player} from "src/app/shared/models/player.model";
 import {faGamepad, faCrown} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -19,11 +18,8 @@ export class GameComponent implements OnInit {
   readonly faCrown = faCrown;
 
   private $session: Subscription;
-  private userId: string;
   session: Session;
-  isHost: boolean;
   game: Game;
-  playerIndex: number;
 
   sortOptions = {
     filter: 'input',
@@ -36,16 +32,14 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
+    this.game = new Game(this.userService.user.value.id);
     this.session = this.sessionService.session.value;
-    this.userId = this.userService.user.value.id;
-    this.isHost = this.session.hostId == this.userId;
-    this.playerIndex = this.session.players.findIndex(player => player.id === this.userId);
-    this.deserialize();
+    Game.deserialize(this.game, this.session);
+    this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
   }
 
   onSessionChange(session: Session): void {
-    if (this.isHost && !session.round) {
+    if (this.game.isHost && !session.round) {
       this.deal(1);
     }
 
@@ -54,11 +48,11 @@ export class GameComponent implements OnInit {
     }
 
     this.session = session;
-    if (!session && !this.isHost) {
+    if (!session && !this.game.isHost) {
       alert('Host left the game');
     }
 
-    this.deserialize();
+    Game.deserialize(this.game, this.session);
   }
 
   onSortUpdate(): void {
@@ -68,28 +62,18 @@ export class GameComponent implements OnInit {
     return this.game?.pile?.last;
   }
 
-  get player(): Player {
-    return this.session.players[this.playerIndex];
-  }
-
   deal(round: number): void {
-    this.session.round = round;
     this.session.phase = 1;
     this.session.current = 0;
     this.session.winner = null;
-    if (round === 1) {
-      this.session.players.forEach(player => player.score = 0);
-    }
-
-    this.deserialize();
-    this.game.deal();
+    this.game.deal(round);
     this.serialize();
     this.update();
   }
 
   drawDeck(): void {
-    if (this.session.current === this.playerIndex && this.session.phase === 1) {
-      this.game.drawDeck(this.playerIndex);
+    if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      this.game.drawDeck();
 
       this.session.phase = 2;
       this.serialize();
@@ -98,8 +82,8 @@ export class GameComponent implements OnInit {
   }
 
   drawOpen(): void {
-    if (this.session.current === this.playerIndex && this.session.phase === 1) {
-      this.game.drawOpen(this.playerIndex);
+    if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      this.game.drawOpen();
 
       this.session.phase = 2;
       this.serialize();
@@ -108,22 +92,22 @@ export class GameComponent implements OnInit {
   }
 
   isSetOrRun(hand: number): boolean {
-    return this.game.isRunOrSet(this.game.players[this.playerIndex].hands[hand].cards);
+    return this.game.isRunOrSet(this.game.players[this.game.playerIdx].hands[hand].cards);
   }
 
   discard(hand: number, card: number): void {
-    if (this.session.current === this.playerIndex && this.session.phase === 2) {
-      this.game.discard(this.playerIndex, hand, card);
+    if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
+      this.game.discard(hand, card);
 
       if (this.isSetOrRun(hand)) { // TODO check all hands!
         if (!this.session.winner) {
-          this.session.winner = this.playerIndex;
+          this.session.winner = this.game.playerIdx;
         }
       } else {
         if (this.session.winner) {
-          this.game.players[this.playerIndex].hands.forEach(hand => {
+          this.game.players[this.game.playerIdx].hands.forEach(hand => {
             if (!this.game.isRunOrSet(hand.cards)) {
-              this.player.score += this.game.score(hand.cards);
+              this.game.player.score += this.game.score(hand.cards);
             }
           })
         }
@@ -147,13 +131,6 @@ export class GameComponent implements OnInit {
     if (this.game) {
       Game.serialize(this.game, this.session);
     }
-  }
-
-  deserialize(): void {
-    if (!this.game) {
-      this.game = new Game();
-    }
-    Game.deserialize(this.game, this.session);
   }
 
   update(): void {

@@ -2,19 +2,37 @@ import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
 import {Session} from "../models/session.model";
+import {host} from "@angular-devkit/build-angular/src/test-utils";
 
 export class Game {
+
+  readonly playerId: string;
+
+  private hostId: string;
+  playerIdx: number = -1;
 
   round: number;
   deck:  Deck;
   pile:  Deck;
   players: Player[];
 
-  constructor() {
+  constructor(playerId: string) {
+    this.playerId = playerId;
+  }
+
+  get isHost(): boolean {
+    return this.hostId === this.playerId;
+  }
+
+  get player(): Player {
+    if (this.playerIdx >= 0) {
+      return this.players[this.playerIdx]
+    } else {
+      throw new Error('Player Not Found')
+    }
   }
 
   static serialize(game: Game, session: Session) {
-    debugger;
     session.round = game.round;
     session.deck = Deck.serialize(game.deck);
     session.pile = Deck.serialize(game.pile);
@@ -31,9 +49,11 @@ export class Game {
   }
 
   static deserialize(game: Game, session: Session) {
+    game.hostId = session.hostId;
     game.round = session.round;
     game.deck = Deck.deserialize(session.deck);
     game.pile = Deck.deserialize(session.pile);
+    game.playerIdx = session.players.findIndex(p => p.id === game.playerId);
 
     game.players =
       session.players.map(player => {
@@ -117,16 +137,23 @@ export class Game {
     return points;
   }
 
-  deal(): void {
-    Game.validateDeal(this.round, this.players.length);
+  deal(round: number): void {
+    Game.validateDeal(round, this.players.length);
 
+    this.round = round;
     this.deck = Deck.create();
     this.deck.shuffle();
 
     this.players.forEach(player => {
+      if (this.round === 1) {
+        player.score = 0;
+      }
+
+      player.hands = [];
       const hand = new Deck();
       hand.push(...this.deck.drawCards(this.round + 2));
       player.hands.push(hand);
+
       for (let i = 0; i < 4; i++) {
         player.hands.push(new Deck());
       }
@@ -136,22 +163,22 @@ export class Game {
     this.pile.push(this.deck.drawCard());
   }
 
-  drawOpen(player: number): void {
-    this.validatePlayer(player);
+  drawOpen(): void {
+    const player = this.player;
     const card = this.pile.drawCard();
-    this.players[player].hands[0].push(card);
+    player.hands[0].push(card);
   }
 
-  drawDeck(player: number): void {
-    this.validatePlayer(player);
+  drawDeck(): void {
+    const player = this.player;
     const card = this.drawCard();
-    this.players[player].hands[0].push(card);
+    player.hands[0].push(card);
   }
 
-  discard(player: number, hand: number, card: number): void {
-    this.validatePlayer(player);
-    const c = this.players[player].hands[hand].discard(card);
-    this.pile.push(c);
+  discard(handIdx: number, cardIdx: number): void {
+    const player = this.player;
+    const card = player.hands[handIdx].discard(cardIdx);
+    this.pile.push(card);
   }
 
   private static validateDeal(round: number, players: number): void {
@@ -163,12 +190,6 @@ export class Game {
       throw new Error('Player count should be more than 1');
     } else if (players >= 8) {
       throw new Error('Player count should be less than 8');
-    }
-  }
-
-  private validatePlayer(player: number) {
-    if (player < 0 || player >= this.players.length) {
-      throw new Error('Invalid player index');
     }
   }
 
