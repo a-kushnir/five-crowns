@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {faGamepad, faCrown} from '@fortawesome/free-solid-svg-icons';
+import {faExclamationTriangle, faCrown} from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
 import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
@@ -14,7 +14,7 @@ import {Card} from "src/app/shared/game/card";
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
-  readonly faGamepad = faGamepad;
+  readonly faExclamationTriangle = faExclamationTriangle;
   readonly faCrown = faCrown;
 
   private $session: Subscription;
