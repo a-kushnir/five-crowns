@@ -27,8 +27,12 @@
 
   <h4>Open:</h4>
   <div class="row">
-    <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
-    <app-game-card [card]="openCard" (click)="drawOpen()"></app-game-card>
+    <div class="player-hand rounded">
+      <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
+    </div>
+    <div class="player-hand rounded" style="margin-left: 10px;">
+      <app-game-card [card]="openCard" (click)="drawOpen()"></app-game-card>
+    </div>
   </div>
 
   <h4>Hand:</h4>
@@ -38,10 +42,10 @@
         <div>{{hand.score(game.round)}}</div>
       </div>
 
-      <div class="d-flex player-hand" [class.run-or-set]="game.isRunOrSet(hand)"
+      <div class="d-flex player-hand rounded" [class.run-or-set]="game.isRunOrSet(hand)"
            [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
         <app-game-card *ngFor="let card of hand.cards; index as cardIdx"
-                       class="flex-left" [card]="card" [collapsed]="true" (click)="discard(handIdx, cardIdx)">
+                       class="flex-left" [card]="card" (click)="discard(handIdx, cardIdx)">
         </app-game-card>
       </div>
     </div>

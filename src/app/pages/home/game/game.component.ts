@@ -94,14 +94,10 @@ export class GameComponent implements OnInit {
     if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
       this.game.discard(hand, card);
 
-      if (this.game.isWinner()) {
-        if (!this.session.winner) {
-          this.session.winner = this.game.playerIdx;
-        }
-      } else {
-        if (this.session.winner) {
-          this.game.calcScore();
-        }
+      if (this.session.winner) {
+        this.game.calcScore();
+      } else if (this.game.isWinner()) {
+        this.session.winner = this.game.playerIdx;
       }
 
       this.session.phase = 1;

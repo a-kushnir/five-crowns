@@ -4,11 +4,11 @@ import {Card, CardValues} from "src/app/shared/game/card";
 @Component({
   selector: 'app-game-card',
   templateUrl: './card.component.html',
+  host: {'class': 'game-card'}
 })
 export class CardComponent implements OnChanges {
 
   @Input() card: Card;
-  @Input() collapsed: boolean;
 
   image: string;
   text: string;

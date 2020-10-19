@@ -7,8 +7,9 @@
     width: 132px;
     height: 207px;
   }
-  &.collapsed {
-    width: 45px;
+  width: 45px;
+  &:last-child {
+    width: 132px;
   }
 }
 .sortable-chosen {
