@@ -1,0 +1,25 @@
+.hourglass-spin {
+  > [class*="fa-hourglass"] {
+    animation: showhide 3s steps(1) infinite;
+    opacity: 0;
+  }
+
+  > .fa-hourglass-end { animation-delay: 1.5s; }
+  > .fa-hourglass-half { animation-delay: 0.75s; }
+  > .fa-hourglass-start { animation-delay: 0s; }
+
+  > .fa-hourglass-end.spin {
+    animation: showhidespin 3s linear infinite;
+  }
+}
+
+@keyframes showhide {
+  0% { opacity: 1 }
+  25% { opacity: 0 }
+}
+@keyframes showhidespin {
+  0% { opacity: 0 }
+  74.9999999% { opacity: 0 }
+  75% { opacity: 1; transform: rotate(0deg); }
+  100% { opacity: 1; transform: rotate(180deg); }
+}
