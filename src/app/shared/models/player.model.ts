@@ -4,4 +4,5 @@ export class Player {
   name: string;
   hands?: string[];
   score?: number;
+  scores?: number[];
 }

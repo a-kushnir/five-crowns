@@ -5,7 +5,7 @@
       <tr>
         <th></th>
         <th>Player</th>
-        <th>Score</th>
+        <th colspan="2" class="text-right">Score</th>
       </tr>
       </thead>
       <tbody>
@@ -16,6 +16,7 @@
         </td>
         <td>{{player.name}}</td>
         <td class="text-right">{{player.score}}</td>
+        <td class="text-right" style="padding-left: 0;">(+{{game.round > 1 ? player.scores[game.round-2] : 0}})</td>
       </tr>
       </tbody>
     </table>

@@ -48,6 +48,7 @@ export class Game {
       const p = session.players.find(p => p.id === player.id);
       if (p) {
         p.score = player.score;
+        p.scores = player.scores;
         p.hands = [];
         player.hands.forEach(hand => {
           p.hands.push(hand.serialize());
@@ -69,6 +70,7 @@ export class Game {
         p.id = player.id;
         p.name = player.name;
         p.score = player.score;
+        p.scores = player.scores;
         p.hands = [];
         if (player.hands) {
           player.hands.forEach(hand => {
@@ -89,6 +91,7 @@ export class Game {
     this.players.forEach(player => {
       if (player.score === undefined) {
         player.score = 0;
+        player.scores = [];
       }
 
       player.hands = [];
@@ -141,9 +144,12 @@ export class Game {
 
   calcScore() {
     const player = this.player;
+    let score = 0;
     player.hands.forEach(hand => {
-      player.score += hand.score(this.round);
+      score += hand.score(this.round);
     })
+    player.score += score;
+    player.scores.push(score);
   }
 
   private static validateDeal(round: number, players: number): void {

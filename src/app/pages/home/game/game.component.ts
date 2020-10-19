@@ -170,6 +170,7 @@ export class GameComponent implements OnInit {
         this.game.calcScore();
       } else if (this.game.isWinner()) {
         this.session.winner = this.game.playerIdx;
+        this.game.player.scores.push(0);
       }
 
       this.session.phase = 1;

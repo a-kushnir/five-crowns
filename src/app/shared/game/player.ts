@@ -5,4 +5,5 @@ export class Player {
   name: string;
   score: number;
   hands: Deck[];
+  scores: number[];
 }
