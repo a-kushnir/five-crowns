@@ -5,6 +5,7 @@ import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {faCrown} from '@fortawesome/free-solid-svg-icons';
+import {CardValues} from "../../../shared/game/card";
 
 @Component({
   selector: 'app-home-game-score',
@@ -31,6 +32,15 @@ export class GameScoreComponent implements OnInit {
       return;
     }
     this.session = session;
+  }
+
+  wildCard(round: number): string {
+    const value = round + 2;
+    if (CardValues[value]) {
+      return CardValues[value];
+    } else {
+      return (round + 2).toString();
+    }
   }
 
   exit() {
