@@ -6,6 +6,7 @@ import {Pages, PageService} from 'src/app/shared/page.service';
 import {PasswordService} from 'src/app/shared/password.service';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {AutoUnsubscribe} from 'src/app/shared/auto-unsubscribe';
+import {SessionService} from "../../shared/session.service";
 
 @AutoUnsubscribe
 @Component({
@@ -19,7 +20,8 @@ export class SignInComponent extends FormComponent implements OnInit {
   private $form: Subscription;
 
   constructor(private userService: UserService,
-              private pageService: PageService) {
+              private pageService: PageService,
+              private sessionService: SessionService) {
     super();
   }
 
@@ -40,9 +42,20 @@ export class SignInComponent extends FormComponent implements OnInit {
       this.submitted = false;
 
       if (user && new PasswordService().compare(password, user.password)) {
-        this.userService.user.next(user);
-        this.pageService.page.next(Pages.Home);
-        this.form.reset();
+        if (user.session) {
+          this.sessionService.findById(user.session)
+            .then(session => {
+              this.userService.user.next(user);
+              this.sessionService.session.next(session);
+              this.pageService.page.next(Pages.Home);
+              this.form.reset();
+            })
+            .catch(error => console.error(error))
+        } else {
+          this.userService.user.next(user);
+          this.pageService.page.next(Pages.Home);
+          this.form.reset();
+        }
       }
       else {
         this.authError = true;

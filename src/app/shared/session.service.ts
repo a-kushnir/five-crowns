@@ -2,12 +2,13 @@ import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {LocalStorage} from './local-storage';
-import {AngularFirestore, CollectionReference} from '@angular/fire/firestore';
+import {AngularFirestore} from '@angular/fire/firestore';
 import {RealTimeUpdate} from './real-time-update';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
 import {Session, SessionStates} from "./models/session.model";
 import _ from 'lodash';
+import {UserService} from "./user.service";
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,8 @@ export class SessionService {
   private rtu: RealTimeUpdate;
   private rtu2: RealTimeUpdate;
 
-  constructor(private firestore: AngularFirestore) {
+  constructor(private firestore: AngularFirestore,
+              private userService: UserService) {
     this.rtu = new RealTimeUpdate(this.listenForUpdates.bind(this), this.handleUpdates.bind(this));
     this.rtu2 = new RealTimeUpdate(this.listenForUpdates2.bind(this), this.handleUpdates2.bind(this));
 
@@ -29,6 +31,17 @@ export class SessionService {
     this.session.subscribe(session => {
       LocalStorage.setObject('session', session);
       this.rtu.subscribe(session?.id);
+      const user = userService.user.value;
+
+      if (user.session != session?.id) {
+        if (session) {
+          user.session = session?.id;
+        } else {
+          delete user.session;
+        }
+        userService.update(user)
+          .catch(error => console.error(error));
+      }
     });
 
     this.sessions = new BehaviorSubject<Session[]>([]);
@@ -87,13 +100,11 @@ export class SessionService {
 
   findById(id: string): Promise<Session> {
     return this
-      .collection(ref => ref
-        .where('id', '==', id)
-        .limit(1))
+      .collection()
+      .doc(id)
       .get()
-      .pipe(map(records => {
-        if (records.size > 0) {
-          const record = records.docs[0];
+      .pipe(map(record => {
+        if (record.exists) {
           return {...record.data(), id: record.id} as Session;
         }
         return null;
