@@ -26,7 +26,8 @@ import {GameListComponent} from './pages/home/game-list/game-list.component';
 import {GameLobbyComponent} from './pages/home/game-lobby/game-lobby.component';
 import {GameComponent} from './pages/home/game/game.component';
 import {CardComponent} from './pages/home/game/card/card.component';
-import { HourglassComponent } from './pages/home/game/hourglass/hourglass.component';
+import {HourglassComponent} from './pages/home/game/hourglass/hourglass.component';
+import {GameScoreComponent} from "./pages/home/game-score/game-score.component";
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { HourglassComponent } from './pages/home/game/hourglass/hourglass.compon
     GameLobbyComponent,
     GameComponent,
     CardComponent,
-    HourglassComponent
+    HourglassComponent,
+    GameScoreComponent
   ],
     imports: [
       BrowserModule,

@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="mx-auto">
+    <table class="table my-table" style="max-width: 350px;">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Player</th>
+        <th>Score</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let player of session.players; let i = index">
+        <td class="text-center player-status player-fa-icon">
+          <fa-icon [icon]="faCrown" *ngIf="i == session.winner" style="padding-top: 3px; display: block;"></fa-icon>
+        </td>
+        <td>{{player.name}}</td>
+        <td class="text-right">{{player.score}}</td>
+      </tr>
+      </tbody>
+    </table>
+    <button class="btn btn-primary float-right" (click)="exit()">Exit</button>
+  </div>
+</div>

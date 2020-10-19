@@ -1,3 +1,4 @@
 <app-home-game-list *ngIf="!session"></app-home-game-list>
 <app-home-game-lobby *ngIf="session && session.state === sessionStates.Waiting"></app-home-game-lobby>
 <app-home-game *ngIf="session && session.state === sessionStates.Playing"></app-home-game>
+<app-home-game-score *ngIf="session && session.state === sessionStates.Closed"></app-home-game-score>

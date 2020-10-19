@@ -12,14 +12,14 @@
       <tr *ngFor="let player of session.players; let i = index">
         <td class="text-center player-status player-fa-icon">
           <app-game-hourglass *ngIf="i == session.current"></app-game-hourglass>
-          <fa-icon [icon]="faCrown" *ngIf="i == session.winner" style="padding-top: 5px; display: block;"></fa-icon>
+          <fa-icon [icon]="faCrown" *ngIf="i == session.winner" style="padding-top: 3px; display: block;"></fa-icon>
         </td>
         <td>{{player.name}}</td>
         <td class="text-right">{{player.score}}</td>
       </tr>
       </tbody>
     </table>
-    <p>{{game.round + 2}}s are wild</p>
+    <p>{{game.wildCard}}s are wild</p>
     <button class="btn btn-primary float-right" (click)="exit()">Exit</button>
   </div>
 

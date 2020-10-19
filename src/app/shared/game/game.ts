@@ -1,4 +1,4 @@
-import {Card} from "./card";
+import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
 import {Session} from "../models/session.model";
@@ -28,6 +28,15 @@ export class Game {
       return this.players[this.playerIdx]
     } else {
       throw new Error('Player Not Found')
+    }
+  }
+
+  get wildCard(): string {
+    const value = this.round + 2;
+    if (CardValues[value]) {
+      return CardValues[value];
+    } else {
+      return (this.round + 2).toString();
     }
   }
 
@@ -78,7 +87,7 @@ export class Game {
     this.deck.shuffle();
 
     this.players.forEach(player => {
-      if (this.round === 1) {
+      if (player.score === undefined) {
         player.score = 0;
       }
 

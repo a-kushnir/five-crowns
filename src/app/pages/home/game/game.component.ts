@@ -1,8 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {faExclamationTriangle, faCrown} from '@fortawesome/free-solid-svg-icons';
+import {faCrown, faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
-import {Session} from "src/app/shared/models/session.model";
+import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
@@ -95,7 +95,7 @@ export class GameComponent implements OnInit {
     if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
       this.game.discard(hand, card);
 
-      if (this.session.winner != null) {
+      if (this.session.winner !== null) {
         this.game.calcScore();
       } else if (this.game.isWinner()) {
         this.session.winner = this.game.playerIdx;
@@ -107,7 +107,15 @@ export class GameComponent implements OnInit {
         this.session.current = 0;
       }
       if (this.session.winner === this.session.current) {
-        this.deal(this.session.round + 1);
+        if (this.session.round < 11) {
+          this.deal(this.session.round + 1);
+        } else {
+          debugger;
+          const scores = this.session.players.map(player => player.score)
+          const score = Math.min(...scores);
+          this.session.winner = scores.indexOf(score);
+          this.session.state = SessionStates.Closed;
+        }
       }
 
       this.serialize();
