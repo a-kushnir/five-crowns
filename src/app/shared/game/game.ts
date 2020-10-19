@@ -1,8 +1,7 @@
-import {Card, CardValues} from "./card";
+import {Card} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
 import {Session} from "../models/session.model";
-import {host} from "@angular-devkit/build-angular/src/test-utils";
 
 export class Game {
 
@@ -32,30 +31,30 @@ export class Game {
     }
   }
 
-  static serialize(game: Game, session: Session) {
-    session.round = game.round;
-    session.deck = Deck.serialize(game.deck);
-    session.pile = Deck.serialize(game.pile);
-    game.players.forEach(player => {
+  serialize(session: Session) {
+    session.round = this.round;
+    session.deck = this.deck.serialize();
+    session.pile = this.pile.serialize();
+    this.players.forEach(player => {
       const p = session.players.find(p => p.id === player.id);
       if (p) {
         p.score = player.score;
         p.hands = [];
         player.hands.forEach(hand => {
-          p.hands.push(Deck.serialize(hand));
+          p.hands.push(hand.serialize());
         });
       }
     });
   }
 
-  static deserialize(game: Game, session: Session) {
-    game.hostId = session.hostId;
-    game.round = session.round;
-    game.deck = Deck.deserialize(session.deck);
-    game.pile = Deck.deserialize(session.pile);
-    game.playerIdx = session.players.findIndex(p => p.id === game.playerId);
+  deserialize(session: Session) {
+    this.hostId = session.hostId;
+    this.round = session.round;
+    this.deck = Deck.deserialize(session.deck);
+    this.pile = Deck.deserialize(session.pile);
+    this.playerIdx = session.players.findIndex(p => p.id === this.playerId);
 
-    game.players =
+    this.players =
       session.players.map(player => {
         const p = new Player();
         p.id = player.id;
@@ -69,72 +68,6 @@ export class Game {
         }
         return p;
       })
-  }
-
-  isWild(card: Card): boolean {
-    return card.value === CardValues.Joker || this.round + 2 === card.value;
-  }
-
-  private split(cards: Card[]): {regular, wilds} {
-    const regular = [];
-    const wilds = [];
-    for(let card of cards) {
-      if (this.isWild(card)) {
-        wilds.push(card);
-      } else {
-        regular.push(card);
-      }
-    }
-    return {regular, wilds}
-  }
-
-  isRun(cards: Card[]): boolean {
-    if (cards.length < 3)
-      return false;
-
-    const {regular, wilds} = this.split(cards);
-    if (regular.length < 2)
-      return true;
-
-    // No other suits
-    if (regular.some(card => card.suit !== regular[0].suit))
-      return false;
-
-    // No duplicates
-    const hash = {}
-    regular.forEach(card => hash[card.value] = true)
-    if (Object.keys(hash).length !== regular.length) {
-      return false;
-    }
-
-    // No missing cards
-    regular.sort((a, b) => a.value < b.value ? -1 : 1);
-    const delta = regular[regular.length - 1].value - regular[0].value;
-    return delta - regular.length - wilds.length < 0;
-  }
-
-  isSet(cards: Card[]): boolean {
-    if (cards.length < 3)
-      return false;
-
-    const {regular} = this.split(cards);
-    if (regular.length < 2)
-      return true;
-
-    // No other values
-    return !regular.some(card => card.value !== regular[0].value);
-  }
-
-  isRunOrSet(cards: Card[]): boolean {
-    return this.isRun(cards) || this.isSet(cards);
-  }
-
-  score(cards: Card[]): number {
-    const {regular, wilds} = this.split(cards);
-    let points = 0;
-    regular.forEach(card => points += card.value)
-    points += 25 * wilds.length;
-    return points;
   }
 
   deal(round: number): void {
@@ -179,6 +112,22 @@ export class Game {
     const player = this.player;
     const card = player.hands[handIdx].discard(cardIdx);
     this.pile.push(card);
+  }
+
+  isRunOrSet(deck: Deck): boolean {
+    return deck.isRunOrSet(this.round);
+  }
+
+  isWinner(): boolean {
+    const player = this.player;
+    return player.hands.every(hand => hand.empty || hand.isRunOrSet(this.round));
+  }
+
+  calcScore() {
+    const player = this.player
+    player.hands.forEach(hand => {
+      player.score += hand.score(this.round);
+    })
   }
 
   private static validateDeal(round: number, players: number): void {

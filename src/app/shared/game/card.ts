@@ -21,10 +21,15 @@ export class Card {
   value: number;
   suit?: string;
 
-  static serialize(card: Card): string {
+  constructor(value: number, suit?: string) {
+    this.value = value;
+    this.suit = suit;
+  }
+
+  serialize(): string {
     let code = 0;
-    if (card.value !== CardValues.Joker) {
-      code = (card.value - 3) * suits.length + suits.indexOf(card.suit) + 1;
+    if (this.value !== CardValues.Joker) {
+      code = (this.value - 3) * suits.length + suits.indexOf(this.suit) + 1;
     }
     return base64[code];
   }
@@ -34,12 +39,16 @@ export class Card {
     if (code < 0) {
       throw new Error('Invalid Card Code');
     } else if (code == 0) {
-      return {value: CardValues.Joker};
+      return new Card(CardValues.Joker);
     } else {
       code--;
       const div = Math.floor(code / suits.length);
       const mod = code % suits.length;
-      return {value: div + 3, suit: suits[mod]};
+      return new Card(div + 3, suits[mod]);
     }
+  }
+
+  isWild(round: number): boolean {
+    return this.value === CardValues.Joker || this.value === round + 2;
   }
 }

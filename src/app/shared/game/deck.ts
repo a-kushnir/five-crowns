@@ -26,19 +26,19 @@ export class Deck {
     for (let count = 1; count <= decks; count++) {
       Object.keys(CardSuits).forEach(suit => {
         for (let value = 3; value <= CardValues.King; value++) {
-          deck.cards.push({value, suit: suit})
+          deck.cards.push(new Card(value, suit))
         }
       });
       for (let count = 1; count <= 3; count++) {
-        deck.cards.push({value: CardValues.Joker})
+        deck.cards.push(new Card(CardValues.Joker))
       }
     }
 
     return deck;
   }
 
-  static serialize(deck: Deck): string {
-    return deck.cards.map(card => Card.serialize(card)).join('');
+  serialize(): string {
+    return this.cards.map(card => card.serialize()).join('');
   }
 
   static deserialize(value: string): Deck {
@@ -81,5 +81,65 @@ export class Deck {
       array[currentIndex] = array[randomIndex];
       array[randomIndex] = temporaryValue;
     }
+  }
+
+  private split(round: number): { regular, wilds } {
+    const result = {regular: [], wilds: []};
+    for (let card of this.cards) {
+      (card.isWild(round) ? result.wilds : result.regular)
+        .push(card);
+    }
+    return result;
+  }
+
+  isRun(round: number): boolean {
+    if (this.length < 3)
+      return false;
+
+    const {regular, wilds} = this.split(round);
+    if (regular.length < 2)
+      return true;
+
+    // No other suits
+    if (regular.some(card => card.suit !== regular[0].suit))
+      return false;
+
+    // No duplicates
+    const hash = {}
+    regular.forEach(card => hash[card.value] = true)
+    if (Object.keys(hash).length !== regular.length) {
+      return false;
+    }
+
+    // No missing cards
+    regular.sort((a, b) => a.value < b.value ? -1 : 1);
+    const delta = regular[regular.length - 1].value - regular[0].value;
+    return delta - regular.length - wilds.length < 0;
+  }
+
+  isSet(round: number): boolean {
+    if (this.length < 3)
+      return false;
+
+    const {regular} = this.split(round);
+    if (regular.length < 2)
+      return true;
+
+    // No other values
+    return !regular.some(card => card.value !== regular[0].value);
+  }
+
+  isRunOrSet(round: number): boolean {
+    return this.isRun(round) || this.isSet(round);
+  }
+
+  score(round: number): number {
+    const {regular, wilds} = this.split(round);
+    let points = 0;
+    if (!this.isRunOrSet(round)) {
+      regular.forEach(card => points += card.value)
+      points += 25 * wilds.length;
+    }
+    return points;
   }
 }
