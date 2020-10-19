@@ -105,16 +105,23 @@ export class Game {
     this.pile.push(this.deck.drawCard());
   }
 
-  drawOpen(): void {
+  drawOpen(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.pile.drawCard();
-    player.hands[0].push(card);
+    if (!added) {
+      player.hands[hand].push(card);
+    }
   }
 
-  drawDeck(): void {
+  drawDeck(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.drawCard();
-    player.hands[0].push(card);
+    if (!added) {
+      player.hands[hand].push(card);
+    } else {
+      const idx = player.hands[hand].cards.indexOf(null);
+      player.hands[hand].cards[idx] = card;
+    }
   }
 
   discard(handIdx: number, cardIdx: number): void {

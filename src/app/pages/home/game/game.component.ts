@@ -22,8 +22,21 @@ export class GameComponent implements OnInit {
   game: Game;
 
   sortOptions = {
-    group: 'hand-group',
-    onUpdate: () => this.onSortUpdate(),
+    group: {
+      name: 'hands',
+      put: ['decks', 'hands'],
+    },
+  };
+
+  sortOptions1 = {
+    group:
+      {
+        name: 'decks',
+        pull: 'clone',
+        revertClone: true,
+      },
+    onMove: (event) => this.onSortMove(event),
+    onEnd: (event) => this.onSortEnd(event),
   };
 
   constructor(private userService: UserService,
@@ -55,7 +68,49 @@ export class GameComponent implements OnInit {
     this.session = session;
   }
 
-  onSortUpdate(): void {
+  onSortMove(event): boolean {
+    const src = event.from.dataset.list;
+    const dst = event.to.dataset.list;
+
+    if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
+      return true;
+    } else if (src === 'openCard') {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+        return true;
+      }
+    } else if (src === 'deckCard') {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+        return true;
+      }
+    } else if (dst === 'openCard' || src === 'deckCard') {
+      if (!isNaN(Number(src)) && this.session.current === this.game.playerIdx && this.session.phase === 2) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  onSortEnd(event): void {
+    const src = event.from.dataset.list;
+    const dst = event.to.dataset.list;
+
+    if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
+      // Moving between hands
+    } else if (src === 'openCard') {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+        debugger;
+        this.drawOpen(Number(dst), true);
+      }
+    } else if (src === 'deckCard') {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+        this.drawDeck(Number(dst), true);
+      }
+    } else if (dst === 'openCard' || src === 'deckCard') {
+      if (!isNaN(Number(src)) && this.session.current === this.game.playerIdx && this.session.phase === 2) {
+        this.discard(Number(src), event.oldIndex);
+      }
+    }
   }
 
   get openCard(): Card {
@@ -71,9 +126,9 @@ export class GameComponent implements OnInit {
     this.update();
   }
 
-  drawDeck(): void {
+  drawDeck(hand: number = 0, added: boolean = false): void {
     if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
-      this.game.drawDeck();
+      this.game.drawDeck(hand, added);
 
       this.session.phase = 2;
       this.serialize();
@@ -81,9 +136,9 @@ export class GameComponent implements OnInit {
     }
   }
 
-  drawOpen(): void {
+  drawOpen(hand: number = 0, added: boolean = false): void {
     if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
-      this.game.drawOpen();
+      this.game.drawOpen(hand, added);
 
       this.session.phase = 2;
       this.serialize();

@@ -86,7 +86,7 @@ export class Deck {
   private split(round: number): { regular, wilds } {
     const result = {regular: [], wilds: []};
     for (let card of this.cards) {
-      (card.isWild(round) ? result.wilds : result.regular)
+      (card?.isWild(round) ? result.wilds : result.regular)
         .push(card);
     }
     return result;
@@ -101,7 +101,7 @@ export class Deck {
       return true;
 
     // No other suits
-    if (regular.some(card => card.suit !== regular[0].suit))
+    if (regular.some(card => card && card.suit !== regular[0].suit))
       return false;
 
     // No duplicates
@@ -137,7 +137,11 @@ export class Deck {
     const {regular, wilds} = this.split(round);
     let points = 0;
     if (!this.isRunOrSet(round)) {
-      regular.forEach(card => points += card.value)
+      regular.forEach(card => {
+        if (card) {
+          points += card.value
+        }
+      })
       points += 25 * wilds.length;
     }
     return points;
