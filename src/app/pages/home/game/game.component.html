@@ -10,7 +10,10 @@
       </thead>
       <tbody>
       <tr *ngFor="let player of session.players; let i = index">
-        <td><fa-icon [icon]="faGamepad" *ngIf="i == session.current"></fa-icon></td>
+        <td>
+          <fa-icon [icon]="faGamepad" *ngIf="i == session.current"></fa-icon>
+          <fa-icon [icon]="faCrown" *ngIf="i == session.winner"></fa-icon>
+        </td>
         <td>{{player.name}}</td>
         <td>{{player.score}}</td>
       </tr>

@@ -5,9 +5,9 @@ import {Session} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
-import {Card} from "../../../shared/game/card";
-import {Player} from "../../../shared/models/player.model";
-import {faGamepad} from '@fortawesome/free-solid-svg-icons';
+import {Card} from "src/app/shared/game/card";
+import {Player} from "src/app/shared/models/player.model";
+import {faGamepad, faCrown} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-home-game',
@@ -16,6 +16,7 @@ import {faGamepad} from '@fortawesome/free-solid-svg-icons';
 })
 export class GameComponent implements OnInit {
   readonly faGamepad = faGamepad;
+  readonly faCrown = faCrown;
 
   private $session: Subscription;
   private userId: string;
