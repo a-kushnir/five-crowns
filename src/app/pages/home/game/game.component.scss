@@ -1,4 +1,9 @@
 
-.win {
-  border-color: #65FF00 !important;
+.player-hand {
+  border: 1px dashed black; height: 207px;
+  background-color: #eeeeee;
+  &.run-or-set {
+    border-color: #65FF00 !important;
+    background-color: rgba(64, 255, 0, 0.1);
+  }
 }
