@@ -8,6 +8,7 @@ import {Game} from "src/app/shared/game/game";
 import {Deck} from "src/app/shared/game/deck";
 import {Card} from "../../../shared/game/card";
 import {Player} from "../../../shared/models/player.model";
+import {faGamepad} from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-home-game',
@@ -15,6 +16,7 @@ import {Player} from "../../../shared/models/player.model";
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
+  readonly faGamepad = faGamepad;
 
   private $session: Subscription;
   private userId: string;

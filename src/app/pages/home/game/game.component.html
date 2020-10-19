@@ -1,4 +1,23 @@
 <div *ngIf="game">
+  <div class="float-right">
+    <table class="table">
+      <thead>
+      <tr>
+        <th></th>
+        <th>Player</th>
+        <th>Score</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let player of session.players; let i = index">
+        <td><fa-icon [icon]="faGamepad" *ngIf="i == session.current"></fa-icon></td>
+        <td>{{player.name}}</td>
+        <td>{{player.score}}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
   <h3>Round: {{game.round}}. Wilds are {{game.round + 2}}'s</h3>
   <h3>Phase: {{this.session.current === this.playerIndex ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}} {{session.winner !== null ? '(Last Turn)' : null}}</h3>
 
