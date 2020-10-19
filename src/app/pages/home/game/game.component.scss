@@ -1,9 +1,24 @@
 
 .player-hand {
-  border: 1px dashed black; height: 207px;
-  background-color: #eeeeee;
+  border: 1px dashed rgba(0, 0, 0, 0.5);
+  height: 207px;
+  background-color: rgba(0, 0, 0, 0.05);
   &.run-or-set {
-    border-color: #65FF00 !important;
+    border-color: #65FF00;
     background-color: rgba(64, 255, 0, 0.1);
+  }
+}
+.player-hand-score {
+  position: relative;
+  width: 0;
+  height: 0;
+  float: right;
+  div {
+    position: absolute;
+    top: 1px;
+    right: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: rgba(0, 0, 0, 0.3);
   }
 }
