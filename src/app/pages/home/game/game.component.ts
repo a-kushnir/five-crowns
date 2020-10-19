@@ -71,9 +71,11 @@ export class GameComponent implements OnInit {
     if (session && this.session) {
       if (this.session.round !== session.round) {
         this.playAudio(AudioAssets.NextRound);
+
       } else if (this.session.current !== this.game.playerIdx &&
           session.current === this.game.playerIdx) {
-        this.playAudio(AudioAssets.NextTurn);
+          this.playAudio(session.winner !== null ?
+            AudioAssets.LastTurn : AudioAssets.NextTurn);
       }
     }
 
