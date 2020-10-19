@@ -1,6 +1,6 @@
 <div *ngIf="game">
-  <h3>Round: {{game.round}}</h3>
-  <h3>Phase: {{this.session.current === this.playerIndex ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}}</h3>
+  <h3>Round: {{game.round}}. Wilds are {{game.round + 2}}'s</h3>
+  <h3>Phase: {{this.session.current === this.playerIndex ? (this.session.phase === 1 ? 'Draw a card' : 'Discard a card') : 'Wait'}} {{session.winner !== null ? '(Last Turn)' : null}}</h3>
 
   <h4>Open:</h4>
   <div class="row">

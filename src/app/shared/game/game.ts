@@ -76,7 +76,7 @@ export class Game {
     return this.isRun(cards) || this.isSet(cards);
   }
 
-  calcPoints(cards: Card[]): number {
+  score(cards: Card[]): number {
     const {regular, wilds} = this.split(cards);
     let points = 0;
     regular.forEach(card => points += card.value)

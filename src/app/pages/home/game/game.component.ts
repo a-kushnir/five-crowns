@@ -7,6 +7,7 @@ import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Deck} from "src/app/shared/game/deck";
 import {Card} from "../../../shared/game/card";
+import {Player} from "../../../shared/models/player.model";
 
 @Component({
   selector: 'app-home-game',
@@ -56,6 +57,10 @@ export class GameComponent implements OnInit {
     return this.game?.pile?.last;
   }
 
+  get player(): Player {
+    return this.session.players[this.playerIndex];
+  }
+
   deal(round: number): void {
     this.session.round = round;
     this.session.phase = 1;
@@ -98,8 +103,15 @@ export class GameComponent implements OnInit {
   discard(index: number): void {
     if (this.session.current === this.playerIndex && this.session.phase === 2) {
       this.game.discard(this.playerIndex, index);
+
       if (this.isSetOrRun()) {
-        this.session.winner = this.playerIndex;
+        if (!this.session.winner) {
+          this.session.winner = this.playerIndex;
+        }
+      } else {
+        if (this.session.winner) {
+          this.player.score += this.game.score(this.game.hands[this.playerIndex].cards);
+        }
       }
 
       this.session.phase = 1;
@@ -107,6 +119,10 @@ export class GameComponent implements OnInit {
       if (this.session.current >= this.session.players.length) {
         this.session.current = 0;
       }
+      if (this.session.winner === this.session.current) {
+        this.deal(this.session.round + 1);
+      }
+
       this.encode();
       this.update();
     }
