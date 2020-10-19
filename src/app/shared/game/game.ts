@@ -124,7 +124,7 @@ export class Game {
   }
 
   calcScore() {
-    const player = this.player
+    const player = this.player;
     player.hands.forEach(hand => {
       player.score += hand.score(this.round);
     })

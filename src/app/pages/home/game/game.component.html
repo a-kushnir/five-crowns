@@ -19,7 +19,7 @@
       </tr>
       </tbody>
     </table>
-    <p>Wilds are {{game.round + 2}}'s</p>
+    <p>{{game.round + 2}}s are wild</p>
     <button class="btn btn-primary float-right" (click)="exit()">Exit</button>
   </div>
 
@@ -35,7 +35,7 @@
   <p style="padding-top: 10px;">
     <span *ngIf="session.current === game.playerIdx && session.phase === 1">Draw a card</span>
     <span *ngIf="session.current === game.playerIdx && session.phase === 2">Discard a card</span>
-    <span *ngIf="session.current !== game.playerIdx"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.players[session.current].name}}</span>
+    <span *ngIf="session.current !== game.playerIdx"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.players[session.current]?.name}}</span>
     <span *ngIf="session.winner !== null">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
   </p>
 

@@ -38,20 +38,21 @@ export class GameComponent implements OnInit {
   }
 
   onSessionChange(session: Session): void {
+    if (!session && !this.game.isHost) {
+      this.session = session;
+      alert('Host left the game');
+      return;
+    }
+
     if (this.game.isHost && !session.round) {
       this.deal(1);
     }
-
     if (_.isEqual(this.session, session)) {
       return;
     }
 
+    this.game.deserialize(session);
     this.session = session;
-    if (!session && !this.game.isHost) {
-      alert('Host left the game');
-    }
-
-    this.game.deserialize(this.session);
   }
 
   onSortUpdate(): void {
@@ -91,15 +92,10 @@ export class GameComponent implements OnInit {
   }
 
   discard(hand: number, card: number): void {
-    alert(`this.session = ${JSON.stringify(this.session)}`)
-    alert(`this.game = ${JSON.stringify(this.game)}`)
-    alert(`hand = ${hand}`)
-    alert(`card = ${card}`)
-
     if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
       this.game.discard(hand, card);
 
-      if (this.session.winner) {
+      if (this.session.winner != null) {
         this.game.calcScore();
       } else if (this.game.isWinner()) {
         this.session.winner = this.game.playerIdx;
