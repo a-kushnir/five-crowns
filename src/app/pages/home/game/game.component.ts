@@ -25,6 +25,12 @@ export class GameComponent implements OnInit {
   game: Game;
   playerIndex: number;
 
+  sortOptions = {
+    filter: 'input',
+    preventOnFilter: false,
+    onUpdate: () => this.onSortUpdate(),
+  };
+
   constructor(private userService: UserService,
               private sessionService: SessionService) {
   }
@@ -53,6 +59,9 @@ export class GameComponent implements OnInit {
     }
 
     this.decode();
+  }
+
+  onSortUpdate(): void {
   }
 
   get openCard(): Card {

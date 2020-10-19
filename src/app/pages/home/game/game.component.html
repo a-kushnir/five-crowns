@@ -16,6 +16,7 @@
       </tr>
       </tbody>
     </table>
+    <button class="btn btn-primary float-right" (click)="exit()">Exit</button>
   </div>
 
   <h3>Round: {{game.round}}. Wilds are {{game.round + 2}}'s</h3>
@@ -28,11 +29,9 @@
   </div>
 
   <h4>Hand:</h4>
-  <div class="row" style="border: 1px dashed black;" [class.win]="isSetOrRun()">
+  <div class="row" style="border: 1px dashed black;" [class.win]="isSetOrRun()" [sortablejs]="game.hands[playerIndex].cards" [sortablejsOptions]="sortOptions">
     <div *ngFor="let card of game.hands[playerIndex].cards; index as i">
       <app-game-card [card]="card" [collapsed]="true" (click)="discard(i)"></app-game-card>
     </div>
   </div>
-
-  <button class="btn btn-primary" (click)="exit()">Exit</button>
 </div>

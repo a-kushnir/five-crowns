@@ -1,12 +1,15 @@
 import {BrowserModule} from '@angular/platform-browser';
 import {NgModule} from '@angular/core';
-import {ReactiveFormsModule} from "@angular/forms";
-import {AngularFireDatabaseModule} from "@angular/fire/database";
-import {AngularFireModule} from "@angular/fire";
-import {environment} from "../environments/environment";
+import {ReactiveFormsModule} from '@angular/forms';
+import {FontAwesomeModule} from '@fortawesome/angular-fontawesome';
+import {AngularFireDatabaseModule} from '@angular/fire/database';
+import {AngularFirestore} from '@angular/fire/firestore';
+import {AngularFireModule} from '@angular/fire';
+import {SortablejsModule} from 'ngx-sortablejs';
 
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
+import {environment} from '../environments/environment';
 import {HeaderComponent} from "./shared/layout/header/header.component";
 import {NavigationComponent} from "./shared/layout/navigation/navigation.component";
 import {FooterComponent} from "./shared/layout/footer/footer.component";
@@ -23,7 +26,6 @@ import {GameListComponent} from './pages/home/game-list/game-list.component';
 import {GameLobbyComponent} from './pages/home/game-lobby/game-lobby.component';
 import {GameComponent} from './pages/home/game/game.component';
 import {CardComponent} from './pages/home/game/card/card.component';
-import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
 
 @NgModule({
   declarations: [
@@ -45,14 +47,15 @@ import {FontAwesomeModule} from "@fortawesome/angular-fontawesome";
     CardComponent
   ],
     imports: [
-        BrowserModule,
-        AppRoutingModule,
-        ReactiveFormsModule,
-        AngularFireModule.initializeApp(environment.firebaseConfig),
-        AngularFireDatabaseModule,
-        FontAwesomeModule,
+      BrowserModule,
+      AppRoutingModule,
+      FontAwesomeModule,
+      ReactiveFormsModule,
+      AngularFireModule.initializeApp(environment.firebaseConfig),
+      AngularFireDatabaseModule,
+      SortablejsModule.forRoot({animation: 150}),
     ],
-  providers: [],
+  providers: [AngularFirestore],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
