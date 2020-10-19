@@ -1,12 +1,13 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {faCrown, faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
+import {faCrown, faExclamationTriangle, faArrowCircleDown, faArrowCircleUp} from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/user.service";
 import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
+import {AudioAssets} from "src/app/shared/audio-assets";
 
 @Component({
   selector: 'app-home-game',
@@ -14,6 +15,8 @@ import {Card} from "src/app/shared/game/card";
   styleUrls: ['./game.component.scss']
 })
 export class GameComponent implements OnInit {
+  readonly faArrowCircleDown = faArrowCircleDown;
+  readonly faArrowCircleUp = faArrowCircleUp;
   readonly faExclamationTriangle = faExclamationTriangle;
   readonly faCrown = faCrown;
 
@@ -26,6 +29,8 @@ export class GameComponent implements OnInit {
       name: 'hands',
       put: ['decks', 'hands'],
     },
+    onMove: (event) => this.onSortMove(event),
+    onEnd: (event) => this.onSortEnd(event),
   };
 
   sortOptions1 = {
@@ -63,6 +68,14 @@ export class GameComponent implements OnInit {
     if (_.isEqual(this.session, session)) {
       return;
     }
+    if (session && this.session) {
+      if (this.session.current !== this.game.playerIdx &&
+          session.current === this.game.playerIdx) {
+        this.playAudio(AudioAssets.NextTurn);
+      } else if (this.session.round !== session.round) {
+        this.playAudio(AudioAssets.NextRound);
+      }
+    }
 
     this.game.deserialize(session);
     this.session = session;
@@ -96,10 +109,9 @@ export class GameComponent implements OnInit {
     const dst = event.to.dataset.list;
 
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
-      // Moving between hands
+      this.playAudio(AudioAssets.CardMoved);
     } else if (src === 'openCard') {
       if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
-        debugger;
         this.drawOpen(Number(dst), true);
       }
     } else if (src === 'deckCard') {
@@ -133,6 +145,7 @@ export class GameComponent implements OnInit {
       this.session.phase = 2;
       this.serialize();
       this.update();
+      this.playAudio(AudioAssets.CardMoved);
     }
   }
 
@@ -143,6 +156,7 @@ export class GameComponent implements OnInit {
       this.session.phase = 2;
       this.serialize();
       this.update();
+      this.playAudio(AudioAssets.CardMoved);
     }
   }
 
@@ -175,6 +189,7 @@ export class GameComponent implements OnInit {
 
       this.serialize();
       this.update();
+      this.playAudio(AudioAssets.CardMoved);
     }
   }
 
@@ -187,6 +202,13 @@ export class GameComponent implements OnInit {
   update(): void {
     this.sessionService.update(this.session)
       .catch(error => console.error(error));
+  }
+
+  playAudio(src: string): void {
+    const audio = new Audio();
+    audio.src = src;
+    audio.load();
+    audio.play().then();
   }
 
   exit() {
