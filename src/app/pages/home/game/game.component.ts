@@ -181,6 +181,7 @@ export class GameComponent implements OnInit {
       if (this.session.winner === this.session.current) {
         if (this.session.round < 11) {
           this.deal(this.session.round + 1);
+          this.playAudio(AudioAssets.NextRound);
         } else {
           const scores = this.session.players.map(player => player.score)
           const score = Math.min(...scores);
