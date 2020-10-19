@@ -69,11 +69,11 @@ export class GameComponent implements OnInit {
       return;
     }
     if (session && this.session) {
-      if (this.session.current !== this.game.playerIdx &&
+      if (this.session.round !== session.round) {
+        this.playAudio(AudioAssets.NextRound);
+      } else if (this.session.current !== this.game.playerIdx &&
           session.current === this.game.playerIdx) {
         this.playAudio(AudioAssets.NextTurn);
-      } else if (this.session.round !== session.round) {
-        this.playAudio(AudioAssets.NextRound);
       }
     }
 
@@ -133,7 +133,7 @@ export class GameComponent implements OnInit {
 
   deal(round: number): void {
     this.session.phase = 1;
-    this.session.current = 0;
+    this.session.current = Math.floor((round - 1) / this.session.players.length);
     this.session.winner = null;
     this.game.deal(round);
     this.serialize();
@@ -181,7 +181,6 @@ export class GameComponent implements OnInit {
         if (this.session.round < 11) {
           this.deal(this.session.round + 1);
         } else {
-          debugger;
           const scores = this.session.players.map(player => player.score)
           const score = Math.min(...scores);
           this.session.winner = scores.indexOf(score);
