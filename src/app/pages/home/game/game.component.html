@@ -32,7 +32,8 @@
   </div>
 
   <h4>Hand:</h4>
-  <div class="row" style="border: 1px dashed black; height: 207px;" [class.win]="isSetOrRun(0)" *ngFor="let hand of game.player.hands; let handIdx = index" [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
+  <div class="row" style="border: 1px dashed black; height: 207px;"
+       *ngFor="let hand of game.player.hands; let handIdx = index" [sortablejs]="hand.cards" [class.win]="isSetOrRun(handIdx)" [sortablejsOptions]="sortOptions">
     <div *ngFor="let card of hand.cards; index as cardIdx">
       <app-game-card [card]="card" [collapsed]="true" (click)="discard(handIdx, cardIdx)"></app-game-card>
     </div>

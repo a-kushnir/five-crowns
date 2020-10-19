@@ -7,6 +7,7 @@ import {SessionService} from "src/app/shared/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
 import {faGamepad, faCrown} from '@fortawesome/free-solid-svg-icons';
+import {Options} from "ngx-sortablejs";
 
 @Component({
   selector: 'app-home-game',
@@ -21,9 +22,8 @@ export class GameComponent implements OnInit {
   session: Session;
   game: Game;
 
-  sortOptions = {
-    filter: 'input',
-    preventOnFilter: false,
+  sortOptions: Options = {
+    group: 'hand-group',
     onUpdate: () => this.onSortUpdate(),
   };
 

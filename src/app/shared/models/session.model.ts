@@ -10,13 +10,13 @@ export class Session {
   id?: string;
   hostId: string;
   players: Player[];
+  maxPlayers: number;
+  password?: string;
   state: SessionStates;
   round?: number;
   phase?: number;
   current?: number;
   winner?: number;
-  maxPlayers: number;
-  password?: string;
   deck?: string;
   pile?: string;
 }
