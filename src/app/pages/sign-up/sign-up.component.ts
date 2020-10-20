@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
-import {UserService} from 'src/app/shared/user.service';
-import {PasswordService} from 'src/app/shared/password.service';
-import {ProfileService} from 'src/app/shared/profile.service';
-import {Pages, PageService} from 'src/app/shared/page.service';
+import {UserService} from 'src/app/shared/services/user.service';
+import {PasswordService} from 'src/app/shared/services/password.service';
+import {ProfileService} from 'src/app/shared/services/profile.service';
+import {Pages, PageService} from 'src/app/shared/services/page.service';
 import {User} from 'src/app/shared/models/user.model';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {MyValidators} from 'src/app/shared/validators/my-validators';

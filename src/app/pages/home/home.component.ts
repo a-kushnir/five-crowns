@@ -1,7 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Session, SessionStates} from "../../shared/models/session.model";
-import {SessionService} from "../../shared/session.service";
-import {AutoUnsubscribe} from "../../shared/auto-unsubscribe";
+import {SessionService} from "src/app/shared/services/session.service";
+import {AutoUnsubscribe} from "src/app/shared/auto-unsubscribe";
 import {Subscription} from "rxjs";
 
 @AutoUnsubscribe

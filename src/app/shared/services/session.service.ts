@@ -4,14 +4,12 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
-import * as firebase from 'firebase';
-import FieldValue = firebase.firestore.FieldValue;
 import _ from 'lodash';
-import {LocalStorage} from './local-storage';
-import {RealTimeUpdate} from './real-time-update';
-import {Session, SessionStates} from "./models/session.model";
-import {Player} from "./models/player.model";
+import {RealTimeUpdate} from '../real-time-update';
+import {Session, SessionStates} from "../models/session.model";
+import {Player} from "../models/player.model";
 import {UserService} from "./user.service";
+import {prepareForUpdate} from "src/app/shared/firebase";
 
 export class SessionKey {
   sessionId: string;
@@ -169,12 +167,12 @@ export class SessionService {
         if (playerIds.length < session.playerMax) {
           playerId = session.playerNextId;
           playerIds.push(playerId);
-
-          transaction.update(ref, {
+          const data = {
             playerIds: playerIds,
             [`playerData.${playerId}`]: player,
             playerNextId: playerId + 1
-          })
+          };
+          transaction.update(ref, prepareForUpdate(data));
         }
         return playerId;
       });
@@ -202,12 +200,14 @@ export class SessionService {
         const session = record.data() as Session;
         const playerIds = session.playerIds;
         const index = playerIds.indexOf(playerId);
+
         if (index > -1) {
           playerIds.splice(index, 1);
-          transaction.update(ref, {
+          const data = {
             playerIds: playerIds,
-            [`playerData.${playerId}`]: FieldValue.delete(),
-          })
+            [`playerData.${playerId}`]: null
+          };
+          transaction.update(ref, prepareForUpdate(data));
         }
       });
     })

@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
-import {UserService} from 'src/app/shared/user.service';
-import {PageService} from 'src/app/shared/page.service';
-import {ProfileService} from 'src/app/shared/profile.service';
+import {UserService} from 'src/app/shared/services/user.service';
+import {PageService} from 'src/app/shared/services/page.service';
+import {ProfileService} from 'src/app/shared/services/profile.service';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {User} from 'src/app/shared/models/user.model';
 import {AutoUnsubscribe} from 'src/app/shared/auto-unsubscribe';

@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {AutoUnsubscribe} from "src/app/shared/auto-unsubscribe";
-import {SessionService} from "src/app/shared/session.service";
-import {UserService} from "src/app/shared/user.service";
+import {SessionService} from "src/app/shared/services/session.service";
+import {UserService} from "src/app/shared/services/user.service";
 
 @AutoUnsubscribe
 @Component({

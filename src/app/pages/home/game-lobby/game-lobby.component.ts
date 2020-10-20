@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
-import {SessionKey, SessionService} from "src/app/shared/session.service";
-import {UserService} from "src/app/shared/user.service";
+import {SessionKey, SessionService} from "src/app/shared/services/session.service";
+import {UserService} from "src/app/shared/services/user.service";
 
 @Component({
   selector: 'app-home-game-lobby',

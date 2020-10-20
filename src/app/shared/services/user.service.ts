@@ -1,13 +1,13 @@
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {LocalStorage} from './local-storage';
+import {LocalStorage} from '../local-storage';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {RealTimeUpdate} from './real-time-update';
-import {User} from './models/user.model';
+import {RealTimeUpdate} from '../real-time-update';
+import {User} from '../models/user.model';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
-import {prepareForUpdate} from "./firebase";
+import {prepareForUpdate} from "../firebase";
 
 @Injectable({
   providedIn: 'root'
