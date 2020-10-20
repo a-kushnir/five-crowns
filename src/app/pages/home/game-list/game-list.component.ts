@@ -76,9 +76,8 @@ export class GameListComponent implements OnInit {
       name: user.name
     };
     this.sessionService.join(sessionId, player)
-      .then(result => {
-        const {session, playerId} = result;
-        const sessionKey = playerId ? {sessionId: session.id, playerId} : null;
+      .then(playerId => {
+        const sessionKey = playerId ? {sessionId, playerId} : null;
         this.sessionService.sessionKey.next(sessionKey);
         if (!sessionKey) {
           alert('Failed to join the game');

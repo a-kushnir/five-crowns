@@ -48,23 +48,18 @@ export class SessionService {
     this.sessionKey = new BehaviorSubject<SessionKey>(
       SessionKey.deserialize(userService.user.value.session)
     );
+    this.session = new BehaviorSubject<Session>(null);
+
     this.sessionKey.subscribe(sessionKey => {
       const user = userService.user.value;
       userService.update(user.id, {session: SessionKey.serialize(sessionKey)})
         .catch(error => console.log(error));
+
+      this.rtu.subscribe(sessionKey?.sessionId);
       if (!sessionKey) {
         this.session.next(null);
       }
     })
-
-    this.session = new BehaviorSubject<Session>(
-      LocalStorage.getObject('session')
-    );
-
-    this.session.subscribe(session => {
-      LocalStorage.setObject('session', session);
-      this.rtu.subscribe(session?.id);
-    });
 
     this.sessions = new BehaviorSubject<Session[]>([]);
     this.rtu2.subscribe('key');
@@ -157,7 +152,7 @@ export class SessionService {
       .delete();
   }
 
-  join(sessionId: string, player: Player): Promise<{session: Session, playerId: number|null}> {
+  join(sessionId: string, player: Player): Promise<number|null> {
     const ref = this.collection().doc(sessionId).ref;
     const db = this.firestore.firestore;
 
@@ -181,7 +176,7 @@ export class SessionService {
             playerNextId: playerId + 1
           })
         }
-        return {session, playerId};
+        return playerId;
       });
     })
   }
