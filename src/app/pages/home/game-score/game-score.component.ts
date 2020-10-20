@@ -44,7 +44,6 @@ export class GameScoreComponent implements OnInit {
   }
 
   quit() {
-    this.sessionService.session.next(null);
-    this.sessionService.playerId.next(null);
+    this.sessionService.sessionKey.next(null);
   }
 }

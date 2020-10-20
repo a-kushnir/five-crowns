@@ -2,7 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
-import {SessionService} from "src/app/shared/session.service";
+import {SessionKey, SessionService} from "src/app/shared/session.service";
 import {UserService} from "src/app/shared/user.service";
 
 @Component({
@@ -13,8 +13,9 @@ import {UserService} from "src/app/shared/user.service";
 export class GameLobbyComponent implements OnInit {
 
   private $session: Subscription;
+  sessionKey: SessionKey;
   session: Session;
-  playerId: number;
+
   ready: boolean;
 
   constructor(private userService: UserService,
@@ -22,13 +23,11 @@ export class GameLobbyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sessionKey = this.sessionService.sessionKey.value;
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
-    this.playerId = this.sessionService.playerId.value;
   }
 
   onSessionChange(session: Session): void {
-    alert(JSON.stringify(session));
-
     if (_.isEqual(this.session, session)) {
       return;
     }
@@ -37,7 +36,7 @@ export class GameLobbyComponent implements OnInit {
       this.ready = session.playerIds.length > 1;
     }
 
-    if (!session && this.playerId !== 0) {
+    if (!session && this.sessionKey?.playerId !== 0) {
       alert('Host left the game');
     }
     this.session = session;
@@ -51,10 +50,9 @@ export class GameLobbyComponent implements OnInit {
 
   quit() {
     this.sessionService
-      .quit(this.session.id, this.sessionService.playerId.value)
+      .quit(this.sessionKey)
       .then(() => {
-        this.sessionService.session.next(null)
-        this.sessionService.playerId.next(null);
+        this.sessionService.sessionKey.next(null)
       }).catch(error => console.error(error));
   }
 }

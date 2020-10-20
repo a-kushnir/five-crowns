@@ -44,19 +44,18 @@ export class PasswordComponent extends FormComponent implements OnInit {
       return;
     }
 
+    const user = this.userService.user.value;
     let {password} = this.form.value;
     password = new PasswordService().hash(password);
-    const user = {...this.userService.user.value, password};
 
-    this.userService.update(user).then(_ => {
-      this.submitted = false;
-
-      this.userService.user.next(user);
-      this.pageService.page.next(Pages.Home);
-    }).catch(error => {
-      this.submitted = false;
-      console.error(error);
-    });
+    this.userService.update(user.id, {password})
+      .then(() => {
+        this.submitted = false;
+        this.pageService.page.next(Pages.Home);
+      }).catch(error => {
+        this.submitted = false;
+        console.error(error);
+      });
   }
 
   private validate(): boolean {

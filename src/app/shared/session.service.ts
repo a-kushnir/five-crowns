@@ -11,20 +11,51 @@ import {LocalStorage} from './local-storage';
 import {RealTimeUpdate} from './real-time-update';
 import {Session, SessionStates} from "./models/session.model";
 import {Player} from "./models/player.model";
+import {UserService} from "./user.service";
+
+export class SessionKey {
+  sessionId: string;
+  playerId: number;
+
+  static serialize(value: SessionKey): string {
+    return value ? `${value.sessionId}:${value.playerId}` : null;
+  }
+  static deserialize(value: string): SessionKey {
+    if (value) {
+      const values = value.split(':');
+      return {sessionId: values[0], playerId: Number(values[1])} as SessionKey;
+    } else {
+      return null;
+    }
+  }
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionService {
+  sessionKey: BehaviorSubject<SessionKey>;
   session: BehaviorSubject<Session>;
-  playerId: BehaviorSubject<number>;
   sessions: BehaviorSubject<Session[]>;
   private rtu: RealTimeUpdate;
   private rtu2: RealTimeUpdate;
 
-  constructor(private firestore: AngularFirestore) {
+  constructor(private firestore: AngularFirestore,
+              private userService: UserService) {
     this.rtu = new RealTimeUpdate(this.listenForUpdates.bind(this), this.handleUpdates.bind(this));
     this.rtu2 = new RealTimeUpdate(this.listenForUpdates2.bind(this), this.handleUpdates2.bind(this));
+
+    this.sessionKey = new BehaviorSubject<SessionKey>(
+      SessionKey.deserialize(userService.user.value.session)
+    );
+    this.sessionKey.subscribe(sessionKey => {
+      const user = userService.user.value;
+      userService.update(user.id, {session: SessionKey.serialize(sessionKey)})
+        .catch(error => console.log(error));
+      if (!sessionKey) {
+        this.session.next(null);
+      }
+    })
 
     this.session = new BehaviorSubject<Session>(
       LocalStorage.getObject('session')
@@ -33,13 +64,6 @@ export class SessionService {
     this.session.subscribe(session => {
       LocalStorage.setObject('session', session);
       this.rtu.subscribe(session?.id);
-    });
-
-    this.playerId = new BehaviorSubject<number>(
-      LocalStorage.getNumber('playerId')
-    );
-    this.playerId.subscribe(playerId => {
-      LocalStorage.setNumber('playerId', playerId);
     });
 
     this.sessions = new BehaviorSubject<Session[]>([]);
@@ -162,7 +186,9 @@ export class SessionService {
     })
   }
 
-  quit(sessionId: string, playerId: number): Promise<void> {
+  quit(sessionKey: SessionKey): Promise<void> {
+    const {sessionId, playerId} = sessionKey;
+
     if (playerId === 0) {
       return this.collection()
         .doc(sessionId)

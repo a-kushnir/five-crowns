@@ -7,6 +7,7 @@ import {RealTimeUpdate} from './real-time-update';
 import {User} from './models/user.model';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
+import {prepareForUpdate} from "./firebase";
 
 @Injectable({
   providedIn: 'root'
@@ -87,11 +88,10 @@ export class UserService {
       });
   }
 
-  update(user: User): Promise<void> {
-    const {id, ...record} = user;
+  update(id: string, data: Partial<User>): Promise<void> {
     return this
       .collection()
       .doc(id)
-      .update(record);
+      .update(prepareForUpdate(data));
   }
 }

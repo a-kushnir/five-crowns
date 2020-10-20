@@ -40,17 +40,16 @@ export class AccountComponent extends FormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    const user = this.userService.user.value;
     const {name, email} = this.form.value;
-    const user = {...this.userService.user.value, name, email};
 
-    this.userService.update(user).then(_ => {
-      this.submitted = false;
-
-      this.userService.user.next(user);
-      this.pageService.page.next(Pages.Home);
-    }).catch(error => {
-      this.submitted = false;
-      console.error(error);
-    });
+    this.userService.update(user.id, {name, email})
+      .then(() => {
+        this.submitted = false;
+        this.pageService.page.next(Pages.Home);
+      }).catch(error => {
+        this.submitted = false;
+        console.error(error);
+      });
   }
 }

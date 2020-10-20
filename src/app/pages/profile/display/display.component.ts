@@ -40,17 +40,16 @@ export class DisplayComponent extends FormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    const user = this.userService.user.value;
     const {syncTheme, theme} = this.form.value;
-    const user = {...this.userService.user.value, theme, syncTheme};
 
-    this.userService.update(user).then(_ => {
-      this.submitted = false;
-
-      this.userService.user.next(user);
-      this.profileService.theme = theme;
-    }).catch(error => {
-      this.submitted = false;
-      console.error(error);
-    });
+    this.userService.update(user.id, {syncTheme, theme})
+      .then(() => {
+        this.submitted = false;
+        this.profileService.theme = theme;
+      }).catch(error => {
+        this.submitted = false;
+        console.error(error);
+      });
   }
 }

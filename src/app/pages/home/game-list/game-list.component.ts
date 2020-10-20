@@ -60,8 +60,7 @@ export class GameListComponent implements OnInit {
 
     this.sessionService.create(session)
       .then(session => {
-        this.sessionService.session.next(session)
-        this.sessionService.playerId.next(0);
+        this.sessionService.sessionKey.next({sessionId: session.id, playerId: 0});
         this.submitted = false;
       })
       .catch(error => console.error(error));
@@ -79,14 +78,16 @@ export class GameListComponent implements OnInit {
     this.sessionService.join(sessionId, player)
       .then(result => {
         const {session, playerId} = result;
-        if (playerId) {
-          this.sessionService.session.next(session)
-          this.sessionService.playerId.next(playerId);
-        } else {
+        const sessionKey = playerId ? {sessionId: session.id, playerId} : null;
+        this.sessionService.sessionKey.next(sessionKey);
+        if (!sessionKey) {
           alert('Failed to join the game');
         }
         this.submitted = false;
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        this.submitted = false;
+        console.error(error);
+      });
   }
 }
