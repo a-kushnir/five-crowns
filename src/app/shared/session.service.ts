@@ -1,14 +1,15 @@
 import {Injectable} from '@angular/core';
 import {map} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
-import {LocalStorage} from './local-storage';
 import {AngularFirestore} from '@angular/fire/firestore';
-import {RealTimeUpdate} from './real-time-update';
-import {QueryFn} from '@angular/fire/firestore/interfaces';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
-import {Session, SessionStates} from "./models/session.model";
+import {QueryFn} from '@angular/fire/firestore/interfaces';
 import _ from 'lodash';
+import {LocalStorage} from './local-storage';
+import {RealTimeUpdate} from './real-time-update';
+import {Session, SessionStates} from "./models/session.model";
 import {UserService} from "./user.service";
+import {Player} from "./models/player.model";
 
 @Injectable({
   providedIn: 'root'
@@ -133,5 +134,34 @@ export class SessionService {
     return this.collection()
       .doc(session.id)
       .delete();
+  }
+
+  join(sessionId: string, player: Player): Promise<{session: Session, playerId: number|null}> {
+    const ref = this.collection().doc(sessionId).ref;
+    const db = this.firestore.firestore;
+
+    return db.runTransaction(function(transaction) {
+      return transaction.get(ref).then(function(record) {
+        if (!record.exists) {
+          throw 'Session not found';
+        }
+
+        const session = record.data() as Session;
+        const playerIds = session.playerIds;
+
+        let playerId = null;
+        if (playerIds.length < session.playerMax) {
+          playerId = session.playerNextId;
+          playerIds.push(playerId);
+
+          transaction.update(ref, {
+            playerIds: playerIds,
+            [`playerData.${playerId}`]: player,
+            playerNextId: playerId + 1
+          })
+        }
+        return {session, playerId};
+      });
+    })
   }
 }

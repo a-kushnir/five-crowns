@@ -5,12 +5,12 @@
       <table class="table table-hover my-table">
         <thead>
           <tr>
-            <th>Players ({{session.players.length}} / {{session.maxPlayers}})</th>
+            <th>Players ({{session.playerIds.length}} / {{session.playerMax}})</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let player of session.players">
-            <td>{{player.name}}</td>
+          <tr *ngFor="let playerId of session.playerIds">
+            <td>{{session.playerData[playerId]?.name}}</td>
           </tr>
         </tbody>
       </table>

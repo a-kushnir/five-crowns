@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-import {Session, SessionStates} from "../../../shared/models/session.model";
-import {AutoUnsubscribe} from "../../../shared/auto-unsubscribe";
 import {Subscription} from "rxjs";
-import {SessionService} from "../../../shared/session.service";
-import {UserService} from "../../../shared/user.service";
+import {Session, SessionStates} from "src/app/shared/models/session.model";
+import {AutoUnsubscribe} from "src/app/shared/auto-unsubscribe";
+import {SessionService} from "src/app/shared/session.service";
+import {UserService} from "src/app/shared/user.service";
 
 @AutoUnsubscribe
 @Component({
@@ -15,6 +15,7 @@ export class GameListComponent implements OnInit {
   sessions: Session[] = [];
   $sessions: Subscription
   selected: Session;
+  submitted: boolean = false;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -40,28 +41,50 @@ export class GameListComponent implements OnInit {
   }
 
   hostGame(): void {
+    if (this.submitted) return;
+    this.submitted = true;
+
     const user = this.userService.user.value;
-    const player = {id: user.id, name: user.name};
+    const player = {
+      id: user.id,
+      name: user.name
+    };
     const session = {
       hostId: user.id,
       state: SessionStates.Waiting,
-      players: [player],
-      maxPlayers: 7
-    };
+      playerIds: [0],
+      playerData: {0: player},
+      playerNextId: 1,
+      playerMax: 7
+    } as Session;
 
     this.sessionService.create(session)
-      .then((session) => {
+      .then(session => {
         this.sessionService.session.next(session)
+        this.submitted = false;
       })
       .catch(error => console.error(error));
   }
 
-  joinGame(session: Session) {
+  joinGame(sessionId: string) {
+    if (this.submitted) return;
+    this.submitted = true;
+
     const user = this.userService.user.value;
-    const player = {id: user.id, name: user.name};
-    session.players.push(player);
-    this.sessionService.update(session).then(() => {
-      this.sessionService.session.next(session)
-    }).catch(error => console.error(error))
+    const player = {
+      id: user.id,
+      name: user.name
+    };
+    this.sessionService.join(sessionId, player)
+      .then(result => {
+        const {session, playerId} = result;
+        if (playerId) {
+          this.sessionService.session.next(session)
+        } else {
+          alert('Failed to join the game');
+        }
+        this.submitted = false;
+      })
+      .catch(error => console.error(error));
   }
 }

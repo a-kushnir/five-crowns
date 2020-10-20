@@ -9,8 +9,11 @@ export enum SessionStates {
 export class Session {
   id?: string;
   hostId: string;
-  players: Player[];
-  maxPlayers: number;
+  players: Player[]; // TODO Remove
+  playerIds: number[];
+  playerData: object;
+  playerNextId: number;
+  playerMax: number;
   password?: string;
   state: SessionStates;
   round?: number;
