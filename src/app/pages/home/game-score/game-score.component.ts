@@ -43,13 +43,8 @@ export class GameScoreComponent implements OnInit {
     }
   }
 
-  exit() {
-    const user = this.userService.user.value;
-    user.session = null;
-    this.userService.update(user)
-      .then(() => {
-        this.sessionService.session.next(null);
-      })
-      .catch(error => console.error(error));
+  quit() {
+    this.sessionService.session.next(null);
+    this.sessionService.playerId.next(null);
   }
 }

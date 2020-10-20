@@ -61,6 +61,7 @@ export class GameListComponent implements OnInit {
     this.sessionService.create(session)
       .then(session => {
         this.sessionService.session.next(session)
+        this.sessionService.playerId.next(0);
         this.submitted = false;
       })
       .catch(error => console.error(error));
@@ -80,6 +81,7 @@ export class GameListComponent implements OnInit {
         const {session, playerId} = result;
         if (playerId) {
           this.sessionService.session.next(session)
+          this.sessionService.playerId.next(playerId);
         } else {
           alert('Failed to join the game');
         }

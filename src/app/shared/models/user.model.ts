@@ -6,5 +6,4 @@ export class User {
   password: string;
   syncTheme: boolean;
   theme: string;
-  session?: string;
 }

@@ -4,11 +4,12 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
+import * as firebase from 'firebase';
+import FieldValue = firebase.firestore.FieldValue;
 import _ from 'lodash';
 import {LocalStorage} from './local-storage';
 import {RealTimeUpdate} from './real-time-update';
 import {Session, SessionStates} from "./models/session.model";
-import {UserService} from "./user.service";
 import {Player} from "./models/player.model";
 
 @Injectable({
@@ -16,12 +17,12 @@ import {Player} from "./models/player.model";
 })
 export class SessionService {
   session: BehaviorSubject<Session>;
+  playerId: BehaviorSubject<number>;
   sessions: BehaviorSubject<Session[]>;
   private rtu: RealTimeUpdate;
   private rtu2: RealTimeUpdate;
 
-  constructor(private firestore: AngularFirestore,
-              private userService: UserService) {
+  constructor(private firestore: AngularFirestore) {
     this.rtu = new RealTimeUpdate(this.listenForUpdates.bind(this), this.handleUpdates.bind(this));
     this.rtu2 = new RealTimeUpdate(this.listenForUpdates2.bind(this), this.handleUpdates2.bind(this));
 
@@ -32,17 +33,13 @@ export class SessionService {
     this.session.subscribe(session => {
       LocalStorage.setObject('session', session);
       this.rtu.subscribe(session?.id);
-      const user = userService.user.value;
+    });
 
-      if (user.session != session?.id) {
-        if (session) {
-          user.session = session?.id;
-        } else {
-          delete user.session;
-        }
-        userService.update(user)
-          .catch(error => console.error(error));
-      }
+    this.playerId = new BehaviorSubject<number>(
+      LocalStorage.getNumber('playerId')
+    );
+    this.playerId.subscribe(playerId => {
+      LocalStorage.setNumber('playerId', playerId);
     });
 
     this.sessions = new BehaviorSubject<Session[]>([]);
@@ -161,6 +158,36 @@ export class SessionService {
           })
         }
         return {session, playerId};
+      });
+    })
+  }
+
+  quit(sessionId: string, playerId: number): Promise<void> {
+    if (playerId === 0) {
+      return this.collection()
+        .doc(sessionId)
+        .delete();
+    }
+
+    const ref = this.collection().doc(sessionId).ref;
+    const db = this.firestore.firestore;
+
+    return db.runTransaction(function(transaction) {
+      return transaction.get(ref).then(function(record) {
+        if (!record.exists) {
+          throw 'Session not found';
+        }
+
+        const session = record.data() as Session;
+        const playerIds = session.playerIds;
+        const index = playerIds.indexOf(playerId);
+        if (index > -1) {
+          playerIds.splice(index, 1);
+          transaction.update(ref, {
+            playerIds: playerIds,
+            [`playerData.${playerId}`]: FieldValue.delete(),
+          })
+        }
       });
     })
   }

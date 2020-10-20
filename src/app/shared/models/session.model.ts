@@ -8,7 +8,7 @@ export enum SessionStates {
 
 export class Session {
   id?: string;
-  hostId: string;
+  hostId: string; // TODO Remove
   players: Player[]; // TODO Remove
   playerIds: number[];
   playerData: object;

@@ -14,7 +14,7 @@ export class GameLobbyComponent implements OnInit {
 
   private $session: Subscription;
   session: Session;
-  isHost: boolean;
+  playerId: number;
   ready: boolean;
 
   constructor(private userService: UserService,
@@ -23,21 +23,21 @@ export class GameLobbyComponent implements OnInit {
 
   ngOnInit(): void {
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
-    this.session = this.sessionService.session.value;
-    const userId = this.userService.user.value.id;
-    this.isHost = this.session.hostId == userId;
+    this.playerId = this.sessionService.playerId.value;
   }
 
   onSessionChange(session: Session): void {
+    alert(JSON.stringify(session));
+
     if (_.isEqual(this.session, session)) {
       return;
     }
 
     if (session) {
-      this.ready = session.players.length > 1;
+      this.ready = session.playerIds.length > 1;
     }
 
-    if (!session && !this.isHost) {
+    if (!session && this.playerId !== 0) {
       alert('Host left the game');
     }
     this.session = session;
@@ -49,21 +49,12 @@ export class GameLobbyComponent implements OnInit {
       .catch(error => console.error(error));
   }
 
-  exit() {
-    const user = this.userService.user.value;
-    if (this.session.hostId === user.id) {
-      this.sessionService.delete(this.session)
-        .then(() => this.sessionService.session.next(null))
-        .catch(error => console.error(error));
-    } else {
-      this.session.players =
-        this.session.players.filter(player => player.id !== user.id);
-      this.sessionService.update(this.session)
-        .then(() => {
-          this.$session.unsubscribe();
-          this.sessionService.session.next(null);
-        })
-        .catch(error => console.error(error));
-    }
+  quit() {
+    this.sessionService
+      .quit(this.session.id, this.sessionService.playerId.value)
+      .then(() => {
+        this.sessionService.session.next(null)
+        this.sessionService.playerId.next(null);
+      }).catch(error => console.error(error));
   }
 }
