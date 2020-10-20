@@ -4,7 +4,7 @@ import {faCrown, faExclamationTriangle, faArrowCircleDown, faArrowCircleUp} from
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/services/user.service";
-import {SessionService} from "src/app/shared/services/session.service";
+import {SessionKey, SessionService} from "src/app/shared/services/session.service";
 import {Game} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
 import {AudioAssets} from "src/app/shared/audio-assets";
@@ -21,6 +21,7 @@ export class GameComponent implements OnInit {
   readonly faCrown = faCrown;
 
   private $session: Subscription;
+  sessionKey: SessionKey;
   session: Session;
   game: Game;
 
@@ -49,6 +50,7 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sessionKey = this.sessionService.sessionKey.value;
     this.session = this.sessionService.session.value;
     this.game = new Game(this.userService.user.value.id);
     this.game.deserialize(this.session);
@@ -216,21 +218,11 @@ export class GameComponent implements OnInit {
     audio.play().then();
   }
 
-  exit() {
-    const user = this.userService.user.value;
-    if (this.session.hostId === user.id) {
-      this.sessionService.delete(this.session)
-        .then(() => this.sessionService.session.next(null))
-        .catch(error => console.error(error));
-    } else {
-      this.session.players =
-        this.session.players.filter(player => player.id !== user.id);
-      this.sessionService.update(this.session)
-        .then(() => {
-          this.$session.unsubscribe();
-          this.sessionService.session.next(null);
-        })
-        .catch(error => console.error(error));
-    }
+  quit() {
+    this.sessionService
+      .quit(this.sessionKey)
+      .then(() => {
+        this.sessionService.sessionKey.next(null)
+      }).catch(error => console.error(error));
   }
 }

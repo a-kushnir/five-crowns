@@ -144,9 +144,9 @@ export class SessionService {
       .update(record);
   }
 
-  delete(session: Session): Promise<void> {
+  delete(sessionId: string): Promise<void> {
     return this.collection()
-      .doc(session.id)
+      .doc(sessionId)
       .delete();
   }
 
@@ -183,9 +183,7 @@ export class SessionService {
     const {sessionId, playerId} = sessionKey;
 
     if (playerId === 0) {
-      return this.collection()
-        .doc(sessionId)
-        .delete();
+      return this.delete(sessionId);
     }
 
     const ref = this.collection().doc(sessionId).ref;
