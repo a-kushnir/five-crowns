@@ -1,25 +1,32 @@
 <div class="row">
-  <div class="mx-auto">
-    <table class="table my-table" style="max-width: 350px;">
+  <div class="col-sm text-center">
+    <table class="table table-sm my-table mx-auto" style="max-width: {{session.playerIds.length * 150 + 100}}px;">
       <thead>
       <tr>
-        <th></th>
-        <th class="border-right">Player</th>
-        <!-- TODO th class="text-right" *ngFor="let score of session.players[0].scores; let i = index">{{wildCard(i + 1)}}</th-->
-        <th class="border-left">Score</th>
+        <th class="text-center" style="width: {{100 / (session.playerIds.length + 1)}}%">Round</th>
+        <th *ngFor="let playerId of session.playerIds" class="text-center text-nowrap border-left" style="width: {{100 / (session.playerIds.length + 1)}}%">
+          <fa-icon [icon]="faCrown" *ngIf="playerId == session.winnerId" class="player-fa-icon" style="padding-top: 3px; display: inline-block;"></fa-icon>
+          {{session.playerData[playerId].name}}
+        </th>
       </tr>
       </thead>
       <tbody>
-      <!-- TODO tr *ngFor="let player of session.players; let i = index">
-        <td class="text-center player-status player-fa-icon">
-          <fa-icon [icon]="faCrown" *ngIf="i == session.winner" style="padding-top: 3px; display: block;"></fa-icon>
-        </td>
-        <td class="border-right">{{player.name}}</td>
-        <td class="text-right" *ngFor="let score of player.scores" [class.text-muted]="score === 0">{{score !== 0 ? score : '-'}}</td>
-        <td class="text-right border-left">{{player.score}}</td>
-      </tr-->
+        <tr *ngFor="let _ of session.playerData[0].scores; let i = index">
+          <td class="text-center">{{wildCard(i + 1)}}</td>
+          <td *ngFor="let playerId of session.playerIds" class="text-center text-nowrap border-left">
+            {{session.playerData[playerId].scores[i] ? session.playerData[playerId].scores[i] : '-'}}
+          </td>
+        </tr>
       </tbody>
+      <thead>
+      <tr>
+        <th class="text-center">Total</th>
+        <th *ngFor="let playerId of session.playerIds" class="text-center text-nowrap border-left">
+          {{session.playerData[playerId].score}}
+        </th>
+      </tr>
+      </thead>
     </table>
-    <button class="btn btn-primary float-right" (click)="quit()">Quit</button>
+    <button class="btn btn-primary" (click)="quit()">Quit</button>
   </div>
 </div>
