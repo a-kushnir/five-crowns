@@ -107,18 +107,15 @@ export class GameComponent implements OnInit {
 
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       return true;
+
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.game.canDraw) {
-        return true;
-      }
+      return dst === 'openCard' || (!isNaN(Number(dst)) && this.game.canDraw);
+
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.game.canDraw) {
-        return true;
-      }
+      return dst === 'deckCard' || (!isNaN(Number(dst)) && this.game.canDraw);
+
     } else if (dst === 'openCard') {
-      if (!isNaN(Number(src)) && this.game.canDiscard) {
-        return true;
-      }
+      return dst === 'openCard' || (!isNaN(Number(src)) && this.game.canDiscard);
     }
 
     return false;
@@ -131,14 +128,17 @@ export class GameComponent implements OnInit {
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       this.playAudio(AudioAssets.CardMoved);
       this.update(SaveModes.PlayerOnly);
+
     } else if (src === 'openCard') {
       if (!isNaN(Number(dst)) && this.game.canDraw) {
         this.drawOpen(Number(dst), true);
       }
+
     } else if (src === 'deckCard') {
       if (!isNaN(Number(dst)) && this.game.canDraw) {
         this.drawDeck(Number(dst), true);
       }
+
     } else if (dst === 'openCard') {
       if (!isNaN(Number(src)) && this.game.canDiscard) {
         const card = this.openCards.splice(event.newIndex, 1)[0];
@@ -176,6 +176,7 @@ export class GameComponent implements OnInit {
   discard(hand: number, card: number): void {
     if (this.game.canDiscard) {
       this.game.discard(hand, card);
+      this.openCards = [this.game.openCard];
       this.game.detectRoundWinner();
       this.game.nextCurrentId();
 
