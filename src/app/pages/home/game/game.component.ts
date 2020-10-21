@@ -190,12 +190,4 @@ export class GameComponent implements OnInit {
     audio.load();
     audio.play().then();
   }
-
-  quit() {
-    this.sessionService
-      .quit(this.sessionKey)
-      .then(() => {
-        this.sessionService.sessionKey.next(null)
-      }).catch(error => console.error(error));
-  }
 }
