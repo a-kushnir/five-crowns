@@ -76,7 +76,7 @@ export class GameComponent implements OnInit {
 
       } else if (this.session.current !== this.game.sessionKey.playerId &&
           session.current === this.game.sessionKey.playerId) {
-          this.playAudio(session.winner !== null ?
+          this.playAudio(session.winner !== undefined ?
             AudioAssets.LastTurn : AudioAssets.NextTurn);
       }
     }
@@ -171,9 +171,11 @@ export class GameComponent implements OnInit {
       if (this.game.current >= this.game.playerIds.length) {
         this.game.current = 0;
       }
+      let dealt = false;
       if (this.game.winner === this.game.current) {
         if (this.game.round < 11) {
           this.deal(this.game.round + 1);
+          dealt = true;
           this.playAudio(AudioAssets.NextRound);
         } else {
           const scores = Object.keys(this.game.playerData).map(key => this.game.playerData[key].score);
@@ -183,13 +185,15 @@ export class GameComponent implements OnInit {
         }
       }
 
-      this.update(SaveModes.Complete);
+      this.update(dealt ? SaveModes.Complete : SaveModes.SessionAndPlayer);
       this.playAudio(AudioAssets.CardMoved);
     }
   }
 
   update(saveMode: SaveModes): void {
     const data = this.game.serialize(saveMode);
+    debugger;
+    alert(JSON.stringify(data)); // TODO REMOVE
     this.sessionService.update(this.game.sessionKey.sessionId, data)
       .catch(error => console.error(error));
   }

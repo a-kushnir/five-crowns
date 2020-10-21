@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {map} from 'rxjs/operators';
 import {BehaviorSubject, Observable} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';

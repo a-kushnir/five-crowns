@@ -9,14 +9,14 @@
       </tr>
       </thead>
       <tbody>
-      <tr *ngFor="let player of session.players; let i = index">
+      <tr *ngFor="let playerId of game.playerIds; let i = index">
         <td class="text-center player-status player-fa-icon">
-          <app-game-hourglass *ngIf="i == session.current"></app-game-hourglass>
-          <fa-icon [icon]="faCrown" *ngIf="i == session.winner" style="padding-top: 3px; display: block;"></fa-icon>
+          <app-game-hourglass *ngIf="playerId === game.current"></app-game-hourglass>
+          <fa-icon [icon]="faCrown" *ngIf="playerId === game.winner" style="padding-top: 3px; display: block;"></fa-icon>
         </td>
-        <td>{{player.name}}</td>
-        <td class="text-right">{{player.score}}</td>
-        <td class="text-right" style="padding-left: 0;">(+{{game.round > 1 ? player.scores[player.scores.length-1] : 0}})</td>
+        <td>{{game.playerData[playerId].name}}</td>
+        <td class="text-right">{{game.playerData[playerId].score}}</td>
+        <td class="text-right" style="padding-left: 0;">(+{{game.round > 1 ? game.playerData[playerId].scores[game.playerData[playerId].scores.length-1] : 0}})</td>
       </tr>
       </tbody>
     </table>
@@ -26,22 +26,22 @@
 
   <div class="row">
     <div data-list="deckCard" class="player-hand rounded"
-         [class.sort-disabled]="!(session.current === game.playerIdx && session.phase === 1)"
+         [class.sort-disabled]="!game.canDraw"
          [sortablejs]="[null]" [sortablejsOptions]="sortOptions1">
       <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
     </div>
     <div data-list="openCard" class="player-hand rounded" style="margin-left: 10px;"
-         [class.sort-disabled]="!(session.current === game.playerIdx && session.phase === 1)"
+         [class.sort-disabled]="!game.canDraw"
          [sortablejs]="[openCard]" [sortablejsOptions]="sortOptions1">
       <app-game-card [card]="openCard" (click)="drawOpen()"></app-game-card>
     </div>
   </div>
 
   <p style="padding-top: 10px;">
-    <span *ngIf="session.current === game.playerIdx && session.phase === 1">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
-    <span *ngIf="session.current === game.playerIdx && session.phase === 2">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
-    <span *ngIf="session.current !== game.playerIdx"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.players[session.current]?.name}}</span>
-    <span *ngIf="session.winner !== null">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
+    <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
+    <span *ngIf="game.canDiscard">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
+    <span *ngIf="!game.isCurrent"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.playerData[game.current]?.name}}</span>
+    <span *ngIf="game.winner !== undefined">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
   </p>
 
   <div class="row">

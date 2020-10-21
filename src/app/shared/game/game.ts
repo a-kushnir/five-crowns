@@ -18,11 +18,11 @@ export class Game {
 
   state: SessionStates;
   phase: number;
-  current: number;
-  winner: number;
+  current?: number;
+  winner?: number;
   round: number;
-  deck:  Deck;
-  pile:  Deck;
+  deck: Deck;
+  pile: Deck;
   playerIds: number[];
   playerData: object;
 
@@ -62,11 +62,13 @@ export class Game {
 
     if (saveMode !== SaveModes.SessionOnly) {
       this.playerIds.forEach(playerId => {
-        if (saveMode !== SaveModes.PlayerOnly ||
+        if (saveMode === SaveModes.Complete ||
             playerId === this.sessionKey.playerId) {
 
           const player = this.playerData[playerId];
           const value = {} as Partial<PlayerModel>;
+          value.id = player.id;
+          value.name = player.name;
           value.score = player.score;
           value.scores = player.scores;
           value.hands = player.hands.map(hand => hand.serialize()).join(',');
