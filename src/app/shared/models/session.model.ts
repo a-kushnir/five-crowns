@@ -16,7 +16,7 @@ export class Session {
   state: SessionStates;
   round?: number;
   phase?: number;
-  current?: number;
+  currentId?: number;
   winnerId?: number;
   deck?: string;
   pile?: string;

@@ -74,8 +74,8 @@ export class GameComponent implements OnInit {
       if (this.session.round !== session.round) {
         this.playAudio(AudioAssets.NextRound);
 
-      } else if (this.session.current !== this.game.sessionKey.playerId &&
-          session.current === this.game.sessionKey.playerId) {
+      } else if (this.session.currentId !== this.game.sessionKey.playerId &&
+          session.currentId === this.game.sessionKey.playerId) {
           this.playAudio(session.winnerId !== undefined ?
             AudioAssets.LastTurn : AudioAssets.NextTurn);
       }
@@ -158,23 +158,17 @@ export class GameComponent implements OnInit {
   discard(hand: number, card: number): void {
     if (this.game.canDiscard) {
       this.game.discard(hand, card);
-      this.game.detectWin();
+      this.game.detectRoundWinner();
+      this.game.nextCurrentId();
 
-      this.game.phase = 1;
-      this.game.current++; // TODO!!!
-      if (this.game.current >= this.game.playerIds.length) {
-        this.game.current = 0;
-      }
       let dealt = false;
-      if (this.game.winnerId === this.game.current) {
+      if (this.game.winnerId === this.game.currentId) {
         if (this.game.round < 11) {
           this.deal(this.game.round + 1);
           dealt = true;
           this.playAudio(AudioAssets.NextRound);
         } else {
-          const scores = Object.keys(this.game.playerData).map(key => this.game.playerData[key].score);
-          const score = Math.min(...scores);
-          this.game.winnerId = scores.indexOf(score);
+          this.game.detectGameWinner();
           this.game.state = SessionStates.Closed;
         }
       }
@@ -186,8 +180,6 @@ export class GameComponent implements OnInit {
 
   update(saveMode: SaveModes): void {
     const data = this.game.serialize(saveMode);
-    debugger;
-    alert(JSON.stringify(data)); // TODO REMOVE
     this.sessionService.update(this.game.sessionKey.sessionId, data)
       .catch(error => console.error(error));
   }

@@ -18,7 +18,7 @@ export class Game {
 
   state: SessionStates;
   phase: number;
-  current?: number;
+  currentId?: number;
   winnerId?: number;
   round: number;
   deck: Deck;
@@ -53,7 +53,7 @@ export class Game {
     if (saveMode !== SaveModes.PlayerOnly) {
       session.state = this.state;
       session.phase = this.phase;
-      session.current = this.current;
+      session.currentId = this.currentId;
       session.winnerId = this.winnerId;
       session.round = this.round;
       session.deck = this.deck.serialize();
@@ -84,7 +84,7 @@ export class Game {
 
     this.state = session.state;
     this.phase = session.phase;
-    this.current = session.current;
+    this.currentId = session.currentId;
     this.winnerId = session.winnerId;
     this.round = session.round;
     this.deck = Deck.deserialize(session.deck);
@@ -109,7 +109,7 @@ export class Game {
     Game.validateDeal(round, this.playerIds.length);
 
     this.phase = 1;
-    this.current = (round - 1) % this.playerIds.length;
+    this.currentId = (round - 1) % this.playerIds.length;
     this.winnerId = null;
     this.round = round;
     this.deck = Deck.create();
@@ -138,7 +138,7 @@ export class Game {
   }
 
   get isCurrent(): boolean {
-    return this.current === this.sessionKey.playerId;
+    return this.currentId === this.sessionKey.playerId;
   }
 
   get canDraw(): boolean {
@@ -173,16 +173,31 @@ export class Game {
   discard(handIdx: number, cardIdx: number): void {
     const player = this.player;
     const card = player.hands[handIdx].discard(cardIdx);
+    this.phase = 1;
     this.pile.push(card);
   }
 
-  detectWin() {
+  detectRoundWinner(): void {
     if (this.winnerId !== undefined) {
       this.calcScore();
     } else if (this.isWinner()) {
       this.winnerId = this.sessionKey.playerId;
       this.player.scores.push(0);
     }
+  }
+
+  nextCurrentId(): void {
+    let index = this.playerIds.indexOf(this.currentId) + 1;
+    if (index >= this.playerIds.length) {
+      index = 0;
+    }
+    this.currentId = this.playerIds[index];
+  }
+
+  detectGameWinner(): void {
+    const scores = Object.keys(this.playerData).map(key => this.playerData[key].score);
+    const score = Math.min(...scores);
+    this.winnerId = scores.indexOf(score);
   }
 
   isRunOrSet(deck: Deck): boolean {
