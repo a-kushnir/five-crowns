@@ -29,10 +29,10 @@
          [sortablejs]="[null]" [sortablejsOptions]="deckSortOptions">
       <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
     </div>
-    <div data-list="openCard" class="player-hand rounded" style="margin-left: 10px;"
+    <div data-list="openCard" class="player-hand rounded hide-if-two-div" style="margin-left: 10px;"
          [class.sort-disabled]="!game.canDraw"
          [sortablejs]="openCards" [sortablejsOptions]="openSortOptions">
-      <app-game-card class="hide-if-two" [card]="openCard" (click)="drawOpen()"></app-game-card>
+      <app-game-card class="hide-if-two-card" [card]="openCard" (click)="drawOpen()"></app-game-card>
     </div>
   </div>
 
