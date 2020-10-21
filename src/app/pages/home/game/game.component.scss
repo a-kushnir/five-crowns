@@ -37,6 +37,12 @@
 }
 .hide-if-two-div .hide-if-two-card {
   display: none;
+  &.sortable-ghost {
+    display: block;
+  }
+  &.sortable-chosen {
+    display: block;
+  }
   &:only-of-type {
     display: block;
   }
