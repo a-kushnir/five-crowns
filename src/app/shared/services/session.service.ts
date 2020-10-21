@@ -97,36 +97,6 @@ export class SessionService {
     }
   }
 
-  findAll(): Promise<Session> {
-    return this
-      .collection(ref => ref
-        .where('state', '==', SessionStates.Waiting)
-        .limit(1))
-      .get()
-      .pipe(map(records => {
-        if (records.size > 0) {
-          const record = records.docs[0];
-          return {...record.data(), id: record.id} as Session;
-        }
-        return null;
-      }))
-      .toPromise();
-  }
-
-  findById(id: string): Promise<Session> {
-    return this
-      .collection()
-      .doc(id)
-      .get()
-      .pipe(map(record => {
-        if (record.exists) {
-          return {...record.data(), id: record.id} as Session;
-        }
-        return null;
-      }))
-      .toPromise();
-  }
-
   create(session: Session): Promise<Session> {
     return this
       .collection()

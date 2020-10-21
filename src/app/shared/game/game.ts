@@ -2,12 +2,21 @@ import _ from 'lodash';
 import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
-import {Session} from "../models/session.model";
+import {Player as PlayerModel} from "../models/player.model";
+import {Session as SessionModel, SessionStates} from "../models/session.model";
 import {SessionKey} from "../services/session.service";
+
+export enum SaveModes {
+  SessionOnly,
+  PlayerOnly,
+  SessionAndPlayer,
+  Complete
+}
 
 export class Game {
   readonly sessionKey: SessionKey;
 
+  state: SessionStates;
   phase: number;
   current: number;
   winner: number;
@@ -38,24 +47,43 @@ export class Game {
     }
   }
 
-  serialize(session: Session) {
-    session.round = this.round;
-    session.deck = this.deck.serialize();
-    session.pile = this.pile.serialize();
-    /* TODO this.players.forEach(player => {
-      const p = session.players.find(p => p.id === player.id);
-      if (p) {
-        p.score = player.score;
-        p.scores = player.scores;
-        p.hands = [];
-        player.hands.forEach(hand => {
-          p.hands.push(hand.serialize());
-        });
-      }
-    });*/
+  serialize(saveMode: SaveModes): object {
+    const session = {} as Partial<SessionModel>;
+
+    if (saveMode !== SaveModes.PlayerOnly) {
+      session.state = this.state;
+      session.phase = this.phase;
+      session.current = this.current;
+      session.winner = this.winner;
+      session.round = this.round;
+      session.deck = this.deck.serialize();
+      session.pile = this.pile.serialize();
+    }
+
+    if (saveMode !== SaveModes.SessionOnly) {
+      this.playerIds.forEach(playerId => {
+        if (saveMode !== SaveModes.PlayerOnly ||
+            playerId === this.sessionKey.playerId) {
+
+          const player = this.playerData[playerId];
+          const value = {} as Partial<PlayerModel>;
+          value.score = player.score;
+          value.scores = player.scores;
+          value.hands = player.hands.map(hand => hand.serialize()).join(',');
+          session[`playerData.${playerId}`] = value;
+        }
+      });
+    }
+
+    return session;
   }
 
-  deserialize(session: Session) {
+  deserialize(session: SessionModel) {
+
+    this.state = session.state;
+    this.phase = session.phase;
+    this.current = session.current;
+    this.winner = session.winner;
     this.round = session.round;
     this.deck = Deck.deserialize(session.deck);
     this.pile = Deck.deserialize(session.pile);
@@ -70,12 +98,7 @@ export class Game {
       player.name = value.name;
       player.score = value.score;
       player.scores = value.scores;
-      player.hands = [];
-      if (value.hands) {
-        value.hands.forEach(hand => {
-          player.hands.push(Deck.deserialize(hand));
-        });
-      }
+      player.hands = value.hands ? value.hands.split(',').map(hand => Deck.deserialize(hand)) : [];
       this.playerData[key] = player;
     })
   }
@@ -112,9 +135,22 @@ export class Game {
     this.pile.push(this.deck.drawCard());
   }
 
+  get isCurrent(): boolean {
+    return this.current === this.sessionKey.playerId;
+  }
+
+  get canDraw(): boolean {
+    return this.isCurrent && this.phase === 1;
+  }
+
+  get canDiscard(): boolean {
+    return this.isCurrent && this.phase === 2;
+  }
+
   drawOpen(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.pile.drawCard();
+    this.phase = 2;
     if (!added) {
       player.hands[hand].push(card);
     }
@@ -123,6 +159,7 @@ export class Game {
   drawDeck(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.drawCard();
+    this.phase = 2;
     if (!added) {
       player.hands[hand].push(card);
     } else {

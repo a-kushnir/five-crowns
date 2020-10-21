@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {faCrown, faExclamationTriangle, faArrowCircleDown, faArrowCircleUp} from '@fortawesome/free-solid-svg-icons';
+import {faArrowCircleDown, faArrowCircleUp, faCrown, faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/services/user.service";
 import {SessionKey, SessionService} from "src/app/shared/services/session.service";
-import {Game} from "src/app/shared/game/game";
+import {Game, SaveModes} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
 import {AudioAssets} from "src/app/shared/audio-assets";
 
@@ -92,15 +92,15 @@ export class GameComponent implements OnInit {
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       return true;
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.game.canDraw) {
         return true;
       }
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.game.canDraw) {
         return true;
       }
-    } else if (dst === 'openCard' || src === 'deckCard') {
-      if (!isNaN(Number(src)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
+    } else if (dst === 'openCard' || src === 'deckCard') { // TODO?
+      if (!isNaN(Number(src)) && this.game.canDiscard) {
         return true;
       }
     }
@@ -114,18 +114,17 @@ export class GameComponent implements OnInit {
 
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       this.playAudio(AudioAssets.CardMoved);
-      this.serialize();
-      this.update();
+      this.update(SaveModes.PlayerOnly);
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.game.canDraw) {
         this.drawOpen(Number(dst), true);
       }
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.game.canDraw) {
         this.drawDeck(Number(dst), true);
       }
-    } else if (dst === 'openCard' || src === 'deckCard') {
-      if (!isNaN(Number(src)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
+    } else if (dst === 'openCard' || src === 'deckCard') { // TODO?
+      if (!isNaN(Number(src)) && this.game.canDiscard) {
         this.discard(Number(src), event.oldIndex);
       }
     }
@@ -137,75 +136,61 @@ export class GameComponent implements OnInit {
 
   deal(round: number): void {
     this.game.deal(round);
-    this.serialize();
-    this.update();
+    this.update(SaveModes.Complete);
   }
 
   drawDeck(hand: number = 0, added: boolean = false): void {
-    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+    if (this.game.canDraw) {
       this.game.drawDeck(hand, added);
-
-      this.session.phase = 2;
-      this.serialize();
-      this.update();
+      this.update(SaveModes.SessionAndPlayer);
       this.playAudio(AudioAssets.CardMoved);
     }
   }
 
   drawOpen(hand: number = 0, added: boolean = false): void {
-    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
+    if (this.game.canDraw) {
       this.game.drawOpen(hand, added);
-
-      this.session.phase = 2;
-      this.serialize();
-      this.update();
+      this.update(SaveModes.SessionAndPlayer);
       this.playAudio(AudioAssets.CardMoved);
     }
   }
 
   discard(hand: number, card: number): void {
-    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
+    if (this.game.canDiscard) {
       this.game.discard(hand, card);
 
-      if (this.session.winner !== null) {
+      if (this.game.winner !== null) {
         this.game.calcScore();
       } else if (this.game.isWinner()) {
-        this.session.winner = this.game.sessionKey.playerId;
+        this.game.winner = this.game.sessionKey.playerId;
         this.game.player.scores.push(0);
       }
 
-      this.session.phase = 1;
-      this.session.current++;
-      if (this.session.current >= this.session.playerIds.length) {
-        this.session.current = 0;
+      this.game.phase = 1;
+      this.game.current++; // TODO!!!
+      if (this.game.current >= this.game.playerIds.length) {
+        this.game.current = 0;
       }
-      if (this.session.winner === this.session.current) {
-        if (this.session.round < 11) {
-          this.deal(this.session.round + 1);
+      if (this.game.winner === this.game.current) {
+        if (this.game.round < 11) {
+          this.deal(this.game.round + 1);
           this.playAudio(AudioAssets.NextRound);
         } else {
-          const scores = Object.keys(this.session.playerData).map(key => this.session.playerData[key].score);
+          const scores = Object.keys(this.game.playerData).map(key => this.game.playerData[key].score);
           const score = Math.min(...scores);
-          this.session.winner = scores.indexOf(score);
-          this.session.state = SessionStates.Closed;
+          this.game.winner = scores.indexOf(score);
+          this.game.state = SessionStates.Closed;
         }
       }
 
-      this.serialize();
-      this.update();
+      this.update(SaveModes.Complete);
       this.playAudio(AudioAssets.CardMoved);
     }
   }
 
-  serialize(): void {
-    if (this.game) {
-      this.game.serialize(this.session);
-    }
-  }
-
-  update(): void {
-    const {id, ...data} = this.session;
-    this.sessionService.update(id, data)
+  update(saveMode: SaveModes): void {
+    const data = this.game.serialize(saveMode);
+    this.sessionService.update(this.game.sessionKey.sessionId, data)
       .catch(error => console.error(error));
   }
 
