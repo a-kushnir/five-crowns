@@ -52,7 +52,7 @@ export class GameComponent implements OnInit {
   ngOnInit(): void {
     this.sessionKey = this.sessionService.sessionKey.value;
     this.session = this.sessionService.session.value;
-    this.game = new Game(this.userService.user.value.id);
+    this.game = new Game(this.sessionService.sessionKey.value);
     this.game.deserialize(this.session);
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
   }
@@ -74,8 +74,8 @@ export class GameComponent implements OnInit {
       if (this.session.round !== session.round) {
         this.playAudio(AudioAssets.NextRound);
 
-      } else if (this.session.current !== this.game.playerIdx &&
-          session.current === this.game.playerIdx) {
+      } else if (this.session.current !== this.game.sessionKey.playerId &&
+          session.current === this.game.sessionKey.playerId) {
           this.playAudio(session.winner !== null ?
             AudioAssets.LastTurn : AudioAssets.NextTurn);
       }
@@ -92,15 +92,15 @@ export class GameComponent implements OnInit {
     if (!isNaN(Number(src)) && !isNaN(Number(dst))) {
       return true;
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
         return true;
       }
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
         return true;
       }
     } else if (dst === 'openCard' || src === 'deckCard') {
-      if (!isNaN(Number(src)) && this.session.current === this.game.playerIdx && this.session.phase === 2) {
+      if (!isNaN(Number(src)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
         return true;
       }
     }
@@ -117,15 +117,15 @@ export class GameComponent implements OnInit {
       this.serialize();
       this.update();
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
         this.drawOpen(Number(dst), true);
       }
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.session.current === this.game.playerIdx && this.session.phase === 1) {
+      if (!isNaN(Number(dst)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
         this.drawDeck(Number(dst), true);
       }
     } else if (dst === 'openCard' || src === 'deckCard') {
-      if (!isNaN(Number(src)) && this.session.current === this.game.playerIdx && this.session.phase === 2) {
+      if (!isNaN(Number(src)) && this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
         this.discard(Number(src), event.oldIndex);
       }
     }
@@ -137,7 +137,7 @@ export class GameComponent implements OnInit {
 
   deal(round: number): void {
     this.session.phase = 1;
-    this.session.current = (round - 1) % this.session.players.length;
+    this.session.current = (round - 1) % this.session.playerIds.length;
     this.session.winner = null;
     this.game.deal(round);
     this.serialize();
@@ -145,7 +145,7 @@ export class GameComponent implements OnInit {
   }
 
   drawDeck(hand: number = 0, added: boolean = false): void {
-    if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
+    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
       this.game.drawDeck(hand, added);
 
       this.session.phase = 2;
@@ -156,7 +156,7 @@ export class GameComponent implements OnInit {
   }
 
   drawOpen(hand: number = 0, added: boolean = false): void {
-    if (this.session.current === this.game.playerIdx && this.session.phase === 1) {
+    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 1) {
       this.game.drawOpen(hand, added);
 
       this.session.phase = 2;
@@ -167,19 +167,19 @@ export class GameComponent implements OnInit {
   }
 
   discard(hand: number, card: number): void {
-    if (this.session.current === this.game.playerIdx && this.session.phase === 2) {
+    if (this.session.current === this.game.sessionKey.playerId && this.session.phase === 2) {
       this.game.discard(hand, card);
 
       if (this.session.winner !== null) {
         this.game.calcScore();
       } else if (this.game.isWinner()) {
-        this.session.winner = this.game.playerIdx;
+        this.session.winner = this.game.sessionKey.playerId;
         this.game.player.scores.push(0);
       }
 
       this.session.phase = 1;
       this.session.current++;
-      if (this.session.current >= this.session.players.length) {
+      if (this.session.current >= this.session.playerIds.length) {
         this.session.current = 0;
       }
       if (this.session.winner === this.session.current) {
@@ -187,7 +187,7 @@ export class GameComponent implements OnInit {
           this.deal(this.session.round + 1);
           this.playAudio(AudioAssets.NextRound);
         } else {
-          const scores = this.session.players.map(player => player.score)
+          const scores = Object.keys(this.session.playerData).map(key => this.session.playerData[key].score);
           const score = Math.min(...scores);
           this.session.winner = scores.indexOf(score);
           this.session.state = SessionStates.Closed;

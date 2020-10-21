@@ -1,34 +1,29 @@
+import _ from 'lodash';
 import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
 import {Session} from "../models/session.model";
+import {SessionKey} from "../services/session.service";
 
 export class Game {
-
-  readonly playerId: string;
-
-  private hostId: string;
-  playerIdx: number = -1;
+  readonly sessionKey: SessionKey;
 
   round: number;
   deck:  Deck;
   pile:  Deck;
-  players: Player[];
+  playerIds: number[];
+  playerData: object;
 
-  constructor(playerId: string) {
-    this.playerId = playerId;
+  constructor(sessionKey: SessionKey) {
+    this.sessionKey = _.clone(sessionKey);
   }
 
   get isHost(): boolean {
-    return this.hostId === this.playerId;
+    return this.sessionKey.playerId === 0;
   }
 
   get player(): Player {
-    if (this.playerIdx >= 0) {
-      return this.players[this.playerIdx]
-    } else {
-      throw new Error('Player Not Found')
-    }
+    return this.playerData[this.sessionKey.playerId]
   }
 
   get wildCard(): string {
@@ -44,7 +39,7 @@ export class Game {
     session.round = this.round;
     session.deck = this.deck.serialize();
     session.pile = this.pile.serialize();
-    this.players.forEach(player => {
+    /* TODO this.players.forEach(player => {
       const p = session.players.find(p => p.id === player.id);
       if (p) {
         p.score = player.score;
@@ -54,41 +49,44 @@ export class Game {
           p.hands.push(hand.serialize());
         });
       }
-    });
+    });*/
   }
 
   deserialize(session: Session) {
-    this.hostId = session.hostId;
     this.round = session.round;
     this.deck = Deck.deserialize(session.deck);
     this.pile = Deck.deserialize(session.pile);
-    this.playerIdx = session.players.findIndex(p => p.id === this.playerId);
+    this.playerIds = session.playerIds;
 
-    this.players =
-      session.players.map(player => {
-        const p = new Player();
-        p.id = player.id;
-        p.name = player.name;
-        p.score = player.score;
-        p.scores = player.scores;
-        p.hands = [];
-        if (player.hands) {
-          player.hands.forEach(hand => {
-            p.hands.push(Deck.deserialize(hand));
-          });
-        }
-        return p;
-      })
+    this.playerData = {};
+    Object.keys(session.playerData).map(key => {
+      const value = session.playerData[key];
+      const player = new Player();
+
+      player.id = value.id;
+      player.name = value.name;
+      player.score = value.score;
+      player.scores = value.scores;
+      player.hands = [];
+      if (value.hands) {
+        value.hands.forEach(hand => {
+          player.hands.push(Deck.deserialize(hand));
+        });
+      }
+      this.playerData[key] = player;
+    })
   }
 
   deal(round: number): void {
-    Game.validateDeal(round, this.players.length);
+    Game.validateDeal(round, this.playerIds.length);
 
     this.round = round;
     this.deck = Deck.create();
     this.deck.shuffle();
 
-    this.players.forEach(player => {
+    Object.keys(this.playerData).map(key => {
+      const player = this.playerData[key];
+
       if (player.score === undefined) {
         player.score = 0;
         player.scores = [];

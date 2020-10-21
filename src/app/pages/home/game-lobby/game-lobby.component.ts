@@ -28,18 +28,17 @@ export class GameLobbyComponent implements OnInit {
   }
 
   onSessionChange(session: Session): void {
-    if (_.isEqual(this.session, session)) {
-      return;
-    }
+    if (_.isEqual(this.session, session)) return;
+    this.session = session;
 
     if (session) {
       this.ready = session.playerIds.length > 1;
     }
 
-    if (!session && this.sessionKey?.playerId !== 0) {
+    if (!session && this.sessionKey &&
+      this.sessionKey.playerId !== 0) {
       alert('Host left the game');
     }
-    this.session = session;
   }
 
   start() {
