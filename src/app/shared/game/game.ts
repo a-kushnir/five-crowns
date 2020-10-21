@@ -19,7 +19,7 @@ export class Game {
   state: SessionStates;
   phase: number;
   current?: number;
-  winner?: number;
+  winnerId?: number;
   round: number;
   deck: Deck;
   pile: Deck;
@@ -54,7 +54,7 @@ export class Game {
       session.state = this.state;
       session.phase = this.phase;
       session.current = this.current;
-      session.winner = this.winner;
+      session.winnerId = this.winnerId;
       session.round = this.round;
       session.deck = this.deck.serialize();
       session.pile = this.pile.serialize();
@@ -85,7 +85,7 @@ export class Game {
     this.state = session.state;
     this.phase = session.phase;
     this.current = session.current;
-    this.winner = session.winner;
+    this.winnerId = session.winnerId;
     this.round = session.round;
     this.deck = Deck.deserialize(session.deck);
     this.pile = Deck.deserialize(session.pile);
@@ -110,7 +110,7 @@ export class Game {
 
     this.phase = 1;
     this.current = (round - 1) % this.playerIds.length;
-    this.winner = null;
+    this.winnerId = null;
     this.round = round;
     this.deck = Deck.create();
     this.deck.shuffle();
@@ -174,6 +174,15 @@ export class Game {
     const player = this.player;
     const card = player.hands[handIdx].discard(cardIdx);
     this.pile.push(card);
+  }
+
+  detectWin() {
+    if (this.winnerId !== undefined) {
+      this.calcScore();
+    } else if (this.isWinner()) {
+      this.winnerId = this.sessionKey.playerId;
+      this.player.scores.push(0);
+    }
   }
 
   isRunOrSet(deck: Deck): boolean {

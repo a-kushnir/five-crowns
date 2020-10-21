@@ -76,7 +76,7 @@ export class GameComponent implements OnInit {
 
       } else if (this.session.current !== this.game.sessionKey.playerId &&
           session.current === this.game.sessionKey.playerId) {
-          this.playAudio(session.winner !== undefined ?
+          this.playAudio(session.winnerId !== undefined ?
             AudioAssets.LastTurn : AudioAssets.NextTurn);
       }
     }
@@ -158,13 +158,7 @@ export class GameComponent implements OnInit {
   discard(hand: number, card: number): void {
     if (this.game.canDiscard) {
       this.game.discard(hand, card);
-
-      if (this.game.winner !== null) {
-        this.game.calcScore();
-      } else if (this.game.isWinner()) {
-        this.game.winner = this.game.sessionKey.playerId;
-        this.game.player.scores.push(0);
-      }
+      this.game.detectWin();
 
       this.game.phase = 1;
       this.game.current++; // TODO!!!
@@ -172,7 +166,7 @@ export class GameComponent implements OnInit {
         this.game.current = 0;
       }
       let dealt = false;
-      if (this.game.winner === this.game.current) {
+      if (this.game.winnerId === this.game.current) {
         if (this.game.round < 11) {
           this.deal(this.game.round + 1);
           dealt = true;
@@ -180,7 +174,7 @@ export class GameComponent implements OnInit {
         } else {
           const scores = Object.keys(this.game.playerData).map(key => this.game.playerData[key].score);
           const score = Math.min(...scores);
-          this.game.winner = scores.indexOf(score);
+          this.game.winnerId = scores.indexOf(score);
           this.game.state = SessionStates.Closed;
         }
       }

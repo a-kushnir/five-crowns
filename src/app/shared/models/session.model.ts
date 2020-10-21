@@ -10,14 +10,14 @@ export class Session {
   id?: string;
   playerIds: number[];
   playerData: object;
-  playerNextId: number;
+  playerNextId?: number;
   playerMax: number;
   password?: string;
   state: SessionStates;
   round?: number;
   phase?: number;
   current?: number;
-  winner?: number;
+  winnerId?: number;
   deck?: string;
   pile?: string;
 }

@@ -12,7 +12,7 @@
       <tr *ngFor="let playerId of game.playerIds; let i = index">
         <td class="text-center player-status player-fa-icon">
           <app-game-hourglass *ngIf="playerId === game.current"></app-game-hourglass>
-          <fa-icon [icon]="faCrown" *ngIf="playerId === game.winner" style="padding-top: 3px; display: block;"></fa-icon>
+          <fa-icon [icon]="faCrown" *ngIf="playerId === game.winnerId" style="padding-top: 3px; display: block;"></fa-icon>
         </td>
         <td>{{game.playerData[playerId].name}}</td>
         <td class="text-right">{{game.playerData[playerId].score}}</td>
@@ -41,7 +41,7 @@
     <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
     <span *ngIf="game.canDiscard">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
     <span *ngIf="!game.isCurrent"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.playerData[game.current]?.name}}</span>
-    <span *ngIf="game.winner !== undefined">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
+    <span *ngIf="game.winnerId !== undefined">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
   </p>
 
   <div class="row">

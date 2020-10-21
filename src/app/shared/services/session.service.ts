@@ -128,19 +128,20 @@ export class SessionService {
           throw 'Session not found';
         }
 
-        const session = record.data() as Session;
-        const playerIds = session.playerIds;
-
         let playerId = null;
-        if (playerIds.length < session.playerMax) {
-          playerId = session.playerNextId;
-          playerIds.push(playerId);
-          const data = {
-            playerIds: playerIds,
-            [`playerData.${playerId}`]: player,
-            playerNextId: playerId + 1
-          };
-          transaction.update(ref, prepareForUpdate(data));
+        const session = record.data() as Session;
+        if (session.state === SessionStates.Waiting) {
+          const playerIds = session.playerIds;
+          if (playerIds.length < session.playerMax) {
+            playerId = session.playerNextId;
+            playerIds.push(playerId);
+            const data = {
+              playerIds: playerIds,
+              [`playerData.${playerId}`]: player,
+              playerNextId: playerId + 1
+            };
+            transaction.update(ref, prepareForUpdate(data));
+          }
         }
         return playerId;
       });

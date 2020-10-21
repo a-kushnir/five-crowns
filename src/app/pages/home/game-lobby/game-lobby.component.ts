@@ -42,7 +42,8 @@ export class GameLobbyComponent implements OnInit {
   }
 
   start() {
-    this.sessionService.update(this.session.id, {state: SessionStates.Playing})
+    const data = {state: SessionStates.Playing, playerNextId: null};
+    this.sessionService.update(this.session.id, data)
       .catch(error => console.error(error));
   }
 
