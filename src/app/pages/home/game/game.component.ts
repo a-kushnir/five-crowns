@@ -24,25 +24,39 @@ export class GameComponent implements OnInit {
   sessionKey: SessionKey;
   session: Session;
   game: Game;
+  openCards: Card[];
 
-  sortOptions = {
+  handSortOptions = {
     group: {
       name: 'hands',
-      put: ['decks', 'hands'],
+      put: ['open', 'deck', 'hands'],
     },
     onMove: (event) => this.onSortMove(event),
     onEnd: (event) => this.onSortEnd(event),
   };
 
-  sortOptions1 = {
+  deckSortOptions = {
     group:
       {
-        name: 'decks',
+        name: 'deck',
+        put: ['hands', 'deck'],
         pull: 'clone',
         revertClone: true,
       },
     onMove: (event) => this.onSortMove(event),
     onEnd: (event) => this.onSortEnd(event),
+  };
+
+  openSortOptions = {
+    group:
+      {
+        name: 'open',
+        put: ['hands', 'open'],
+        pull: 'clone',
+        revertClone: true,
+      },
+    onMove: (event) => this.onSortMove(event),
+    onEnd: (event) => this.onSortEnd(event)
   };
 
   constructor(private userService: UserService,
@@ -54,13 +68,14 @@ export class GameComponent implements OnInit {
     this.session = this.sessionService.session.value;
     this.game = new Game(this.sessionService.sessionKey.value);
     this.game.deserialize(this.session);
+    this.openCards = [this.game.openCard];
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
   }
 
   onSessionChange(session: Session): void {
-    if (!session && !this.game.isHost) {
+    if (!session) {
       this.session = session;
-      alert('Host left the game');
+      if (!this.game.isHost) alert('Host left the game');
       return;
     }
 
@@ -82,6 +97,7 @@ export class GameComponent implements OnInit {
     }
 
     this.game.deserialize(session);
+    this.openCards = [this.game.openCard];
     this.session = session;
   }
 
@@ -99,7 +115,7 @@ export class GameComponent implements OnInit {
       if (!isNaN(Number(dst)) && this.game.canDraw) {
         return true;
       }
-    } else if (dst === 'openCard' || src === 'deckCard') { // TODO?
+    } else if (dst === 'openCard') {
       if (!isNaN(Number(src)) && this.game.canDiscard) {
         return true;
       }
@@ -123,8 +139,10 @@ export class GameComponent implements OnInit {
       if (!isNaN(Number(dst)) && this.game.canDraw) {
         this.drawDeck(Number(dst), true);
       }
-    } else if (dst === 'openCard' || src === 'deckCard') { // TODO?
+    } else if (dst === 'openCard') {
       if (!isNaN(Number(src)) && this.game.canDiscard) {
+        const card = this.openCards.splice(event.newIndex, 1)[0];
+        this.game.player.hands[Number(src)].cards.splice(event.oldIndex, 0, card);
         this.discard(Number(src), event.oldIndex);
       }
     }

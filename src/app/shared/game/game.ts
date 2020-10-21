@@ -47,6 +47,10 @@ export class Game {
     }
   }
 
+  get openCard(): Card {
+    return this.pile?.last;
+  }
+
   serialize(saveMode: SaveModes): object {
     const session = {} as Partial<SessionModel>;
 
@@ -168,6 +172,11 @@ export class Game {
       const idx = player.hands[hand].cards.indexOf(null);
       player.hands[hand].cards[idx] = card;
     }
+  }
+
+  card(handIdx: number, cardIdx: number): Card {
+    const player = this.player;
+    return player.hands[handIdx].cards[cardIdx];
   }
 
   discard(handIdx: number, cardIdx: number): void {

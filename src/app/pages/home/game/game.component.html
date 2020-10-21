@@ -26,13 +26,13 @@
   <div class="row">
     <div data-list="deckCard" class="player-hand rounded"
          [class.sort-disabled]="!game.canDraw"
-         [sortablejs]="[null]" [sortablejsOptions]="sortOptions1">
+         [sortablejs]="[null]" [sortablejsOptions]="deckSortOptions">
       <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
     </div>
     <div data-list="openCard" class="player-hand rounded" style="margin-left: 10px;"
          [class.sort-disabled]="!game.canDraw"
-         [sortablejs]="[openCard]" [sortablejsOptions]="sortOptions1">
-      <app-game-card [card]="openCard" (click)="drawOpen()"></app-game-card>
+         [sortablejs]="openCards" [sortablejsOptions]="openSortOptions">
+      <app-game-card class="hide-if-two" [card]="openCard" (click)="drawOpen()"></app-game-card>
     </div>
   </div>
 
@@ -50,7 +50,7 @@
       </div>
 
       <div [attr.data-list]="handIdx" class="d-flex player-hand rounded" [class.run-or-set]="game.isRunOrSet(hand)" [class.has-score]="hand.score(game.round) > 0"
-           [sortablejs]="hand.cards" [sortablejsOptions]="sortOptions">
+           [sortablejs]="hand.cards" [sortablejsOptions]="handSortOptions">
         <app-game-card *ngFor="let card of hand.cards; index as cardIdx"
                        class="flex-left" [card]="card" (click)="discard(handIdx, cardIdx)">
         </app-game-card>
