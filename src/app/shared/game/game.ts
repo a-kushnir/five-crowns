@@ -8,6 +8,9 @@ import {SessionKey} from "../services/session.service";
 export class Game {
   readonly sessionKey: SessionKey;
 
+  phase: number;
+  current: number;
+  winner: number;
   round: number;
   deck:  Deck;
   pile:  Deck;
@@ -80,6 +83,9 @@ export class Game {
   deal(round: number): void {
     Game.validateDeal(round, this.playerIds.length);
 
+    this.phase = 1;
+    this.current = (round - 1) % this.playerIds.length;
+    this.winner = null;
     this.round = round;
     this.deck = Deck.create();
     this.deck.shuffle();

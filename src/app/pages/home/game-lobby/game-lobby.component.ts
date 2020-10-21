@@ -42,8 +42,7 @@ export class GameLobbyComponent implements OnInit {
   }
 
   start() {
-    this.session.state = SessionStates.Playing;
-    this.sessionService.update(this.session)
+    this.sessionService.update(this.session.id, {state: SessionStates.Playing})
       .catch(error => console.error(error));
   }
 

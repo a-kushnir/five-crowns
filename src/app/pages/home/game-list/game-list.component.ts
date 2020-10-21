@@ -50,13 +50,12 @@ export class GameListComponent implements OnInit {
       name: user.name
     };
     const session = {
-      hostId: user.id,
       state: SessionStates.Waiting,
       playerIds: [0],
       playerData: {0: player},
       playerNextId: 1,
       playerMax: 7
-    } as Session;
+    };
 
     this.sessionService.create(session)
       .then(session => {

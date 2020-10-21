@@ -136,17 +136,16 @@ export class SessionService {
       });
   }
 
-  update(session: Session): Promise<void> {
-    const {id, ...record} = session;
+  update(id: string, data: Partial<Session>): Promise<void> {
     return this
       .collection()
       .doc(id)
-      .update(record);
+      .update(prepareForUpdate(data));
   }
 
-  delete(sessionId: string): Promise<void> {
+  delete(id: string): Promise<void> {
     return this.collection()
-      .doc(sessionId)
+      .doc(id)
       .delete();
   }
 

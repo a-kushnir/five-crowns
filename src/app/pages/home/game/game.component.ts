@@ -136,9 +136,6 @@ export class GameComponent implements OnInit {
   }
 
   deal(round: number): void {
-    this.session.phase = 1;
-    this.session.current = (round - 1) % this.session.playerIds.length;
-    this.session.winner = null;
     this.game.deal(round);
     this.serialize();
     this.update();
@@ -207,7 +204,8 @@ export class GameComponent implements OnInit {
   }
 
   update(): void {
-    this.sessionService.update(this.session)
+    const {id, ...data} = this.session;
+    this.sessionService.update(id, data)
       .catch(error => console.error(error));
   }
 
