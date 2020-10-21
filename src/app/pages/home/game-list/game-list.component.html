@@ -11,8 +11,8 @@
         </thead>
         <tbody>
         <tr *ngFor="let session of sessions" [class.selected]="selected?.id == session.id" (click)="select(session)">
-          <td>{{session.players[0].name}}</td>
-          <td class="text-center">{{session.players.length}} / {{session.maxPlayers}}</td>
+          <td>{{session.playerData[0].name}}</td>
+          <td class="text-center">{{session.playerIds.length}} / {{session.playerMax}}</td>
           <td class="text-center">{{session.password ? 'Yes' : 'No'}}</td>
         </tr>
         <tr *ngIf="sessions.length === 0">
@@ -23,7 +23,7 @@
       <div class="mx-auto" style="width: max-content;">
         <button class="btn btn-primary" (click)="hostGame()">Host Game</button>
         <button class="btn" [class.btn-primary]="selected" [class.btn-secondary]="!selected"
-                [disabled]="!selected" (click)="joinGame(selected)">Join Game</button>
+                [disabled]="!selected" (click)="joinGame(selected.id)">Join Game</button>
       </div>
     </div>
 

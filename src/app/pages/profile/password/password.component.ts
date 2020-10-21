@@ -1,9 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
-import {UserService} from 'src/app/shared/user.service';
-import {Pages, PageService} from 'src/app/shared/page.service';
-import {PasswordService} from 'src/app/shared/password.service';
+import {UserService} from 'src/app/shared/services/user.service';
+import {Pages, PageService} from 'src/app/shared/services/page.service';
+import {PasswordService} from 'src/app/shared/services/password.service';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {MyValidators} from 'src/app/shared/validators/my-validators';
 import {User} from 'src/app/shared/models/user.model';
@@ -44,19 +44,18 @@ export class PasswordComponent extends FormComponent implements OnInit {
       return;
     }
 
+    const user = this.userService.user.value;
     let {password} = this.form.value;
     password = new PasswordService().hash(password);
-    const user = {...this.userService.user.value, password};
 
-    this.userService.update(user).then(_ => {
-      this.submitted = false;
-
-      this.userService.user.next(user);
-      this.pageService.page.next(Pages.Home);
-    }).catch(error => {
-      this.submitted = false;
-      console.error(error);
-    });
+    this.userService.update(user.id, {password})
+      .then(() => {
+        this.submitted = false;
+        this.pageService.page.next(Pages.Home);
+      }).catch(error => {
+        this.submitted = false;
+        console.error(error);
+      });
   }
 
   private validate(): boolean {

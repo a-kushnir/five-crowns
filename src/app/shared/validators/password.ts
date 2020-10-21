@@ -1,6 +1,6 @@
 import {AbstractControl, ValidationErrors, Validator} from '@angular/forms';
-import {UserService} from '../user.service';
-import {PasswordService} from '../password.service';
+import {UserService} from '../services/user.service';
+import {PasswordService} from '../services/password.service';
 
 export class PasswordValidator implements Validator {
   constructor(private userService: UserService) {

@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {BehaviorSubject} from 'rxjs';
-import {LocalStorage} from './local-storage';
+import {LocalStorage} from '../local-storage';
 import {Title} from '@angular/platform-browser';
 
 export enum Pages {

@@ -2,8 +2,8 @@ import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
-import {SessionService} from "src/app/shared/session.service";
-import {UserService} from "src/app/shared/user.service";
+import {SessionKey, SessionService} from "src/app/shared/services/session.service";
+import {UserService} from "src/app/shared/services/user.service";
 
 @Component({
   selector: 'app-home-game-lobby',
@@ -13,8 +13,9 @@ import {UserService} from "src/app/shared/user.service";
 export class GameLobbyComponent implements OnInit {
 
   private $session: Subscription;
+  sessionKey: SessionKey;
   session: Session;
-  isHost: boolean;
+
   ready: boolean;
 
   constructor(private userService: UserService,
@@ -22,48 +23,35 @@ export class GameLobbyComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sessionKey = this.sessionService.sessionKey.value;
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
-    this.session = this.sessionService.session.value;
-    const userId = this.userService.user.value.id;
-    this.isHost = this.session.hostId == userId;
   }
 
   onSessionChange(session: Session): void {
-    if (_.isEqual(this.session, session)) {
-      return;
-    }
+    if (_.isEqual(this.session, session)) return;
+    this.session = session;
 
     if (session) {
-      this.ready = session.players.length > 1;
+      this.ready = session.playerIds.length > 1;
     }
 
-    if (!session && !this.isHost) {
+    if (!session && this.sessionKey &&
+      this.sessionKey.playerId !== 0) {
       alert('Host left the game');
     }
-    this.session = session;
   }
 
   start() {
-    this.session.state = SessionStates.Playing;
-    this.sessionService.update(this.session)
+    const data = {state: SessionStates.Playing, playerNextId: null};
+    this.sessionService.update(this.session.id, data)
       .catch(error => console.error(error));
   }
 
-  exit() {
-    const user = this.userService.user.value;
-    if (this.session.hostId === user.id) {
-      this.sessionService.delete(this.session)
-        .then(() => this.sessionService.session.next(null))
-        .catch(error => console.error(error));
-    } else {
-      this.session.players =
-        this.session.players.filter(player => player.id !== user.id);
-      this.sessionService.update(this.session)
-        .then(() => {
-          this.$session.unsubscribe();
-          this.sessionService.session.next(null);
-        })
-        .catch(error => console.error(error));
-    }
+  quit() {
+    this.sessionService
+      .quit(this.sessionKey)
+      .then(() => {
+        this.sessionService.sessionKey.next(null)
+      }).catch(error => console.error(error));
   }
 }

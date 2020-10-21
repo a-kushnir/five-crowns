@@ -1,11 +1,11 @@
 import {Component, OnInit} from '@angular/core';
+import {faCrown} from '@fortawesome/free-solid-svg-icons';
 import {Subscription} from "rxjs";
 import _ from 'lodash';
 import {Session} from "src/app/shared/models/session.model";
-import {UserService} from "src/app/shared/user.service";
-import {SessionService} from "src/app/shared/session.service";
-import {faCrown} from '@fortawesome/free-solid-svg-icons';
-import {CardValues} from "../../../shared/game/card";
+import {UserService} from "src/app/shared/services/user.service";
+import {SessionService} from "src/app/shared/services/session.service";
+import {CardValues} from "src/app/shared/game/card";
 
 @Component({
   selector: 'app-home-game-score',
@@ -43,13 +43,7 @@ export class GameScoreComponent implements OnInit {
     }
   }
 
-  exit() {
-    const user = this.userService.user.value;
-    user.session = null;
-    this.userService.update(user)
-      .then(() => {
-        this.sessionService.session.next(null);
-      })
-      .catch(error => console.error(error));
+  quit() {
+    this.sessionService.sessionKey.next(null);
   }
 }

@@ -8,15 +8,16 @@ export enum SessionStates {
 
 export class Session {
   id?: string;
-  hostId: string;
-  players: Player[];
-  maxPlayers: number;
+  playerIds: number[];
+  playerData: object;
+  playerNextId?: number;
+  playerMax: number;
   password?: string;
   state: SessionStates;
   round?: number;
   phase?: number;
-  current?: number;
-  winner?: number;
+  currentId?: number;
+  winnerId?: number;
   deck?: string;
   pile?: string;
 }

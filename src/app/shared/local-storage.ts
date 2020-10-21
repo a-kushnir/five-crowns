@@ -37,4 +37,12 @@ export class LocalStorage {
     this.setString(key, value ? value.format(this.DateFormat) : null);
   }
 
+  static getNumber(key: string): number {
+    const value = this.getString(key);
+    return value ? Number(value) : null;
+  }
+
+  static setNumber(key: string, value: number): void {
+    this.setString(key, value ? value.toString() : null);
+  }
 }

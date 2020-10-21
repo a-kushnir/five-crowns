@@ -1,34 +1,41 @@
+import _ from 'lodash';
 import {Card, CardValues} from "./card";
 import {Deck} from "./deck";
 import {Player} from "./player";
-import {Session} from "../models/session.model";
+import {Player as PlayerModel} from "../models/player.model";
+import {Session as SessionModel, SessionStates} from "../models/session.model";
+import {SessionKey} from "../services/session.service";
+
+export enum SaveModes {
+  SessionOnly,
+  PlayerOnly,
+  SessionAndPlayer,
+  Complete
+}
 
 export class Game {
+  readonly sessionKey: SessionKey;
 
-  readonly playerId: string;
-
-  private hostId: string;
-  playerIdx: number = -1;
-
+  state: SessionStates;
+  phase: number;
+  currentId?: number;
+  winnerId?: number;
   round: number;
-  deck:  Deck;
-  pile:  Deck;
-  players: Player[];
+  deck: Deck;
+  pile: Deck;
+  playerIds: number[];
+  playerData: object;
 
-  constructor(playerId: string) {
-    this.playerId = playerId;
+  constructor(sessionKey: SessionKey) {
+    this.sessionKey = _.clone(sessionKey);
   }
 
   get isHost(): boolean {
-    return this.hostId === this.playerId;
+    return this.sessionKey.playerId === 0;
   }
 
   get player(): Player {
-    if (this.playerIdx >= 0) {
-      return this.players[this.playerIdx]
-    } else {
-      throw new Error('Player Not Found')
-    }
+    return this.playerData[this.sessionKey.playerId]
   }
 
   get wildCard(): string {
@@ -40,55 +47,77 @@ export class Game {
     }
   }
 
-  serialize(session: Session) {
-    session.round = this.round;
-    session.deck = this.deck.serialize();
-    session.pile = this.pile.serialize();
-    this.players.forEach(player => {
-      const p = session.players.find(p => p.id === player.id);
-      if (p) {
-        p.score = player.score;
-        p.scores = player.scores;
-        p.hands = [];
-        player.hands.forEach(hand => {
-          p.hands.push(hand.serialize());
-        });
-      }
-    });
+  serialize(saveMode: SaveModes): object {
+    const session = {} as Partial<SessionModel>;
+
+    if (saveMode !== SaveModes.PlayerOnly) {
+      session.state = this.state;
+      session.phase = this.phase;
+      session.currentId = this.currentId;
+      session.winnerId = this.winnerId;
+      session.round = this.round;
+      session.deck = this.deck.serialize();
+      session.pile = this.pile.serialize();
+    }
+
+    if (saveMode !== SaveModes.SessionOnly) {
+      this.playerIds.forEach(playerId => {
+        if (saveMode === SaveModes.Complete ||
+            playerId === this.sessionKey.playerId) {
+
+          const player = this.playerData[playerId];
+          const value = {} as Partial<PlayerModel>;
+          value.id = player.id;
+          value.name = player.name;
+          value.score = player.score;
+          value.scores = player.scores;
+          value.hands = player.hands.map(hand => hand.serialize()).join(',');
+          session[`playerData.${playerId}`] = value;
+        }
+      });
+    }
+
+    return session;
   }
 
-  deserialize(session: Session) {
-    this.hostId = session.hostId;
+  deserialize(session: SessionModel) {
+
+    this.state = session.state;
+    this.phase = session.phase;
+    this.currentId = session.currentId;
+    this.winnerId = session.winnerId;
     this.round = session.round;
     this.deck = Deck.deserialize(session.deck);
     this.pile = Deck.deserialize(session.pile);
-    this.playerIdx = session.players.findIndex(p => p.id === this.playerId);
+    this.playerIds = session.playerIds;
 
-    this.players =
-      session.players.map(player => {
-        const p = new Player();
-        p.id = player.id;
-        p.name = player.name;
-        p.score = player.score;
-        p.scores = player.scores;
-        p.hands = [];
-        if (player.hands) {
-          player.hands.forEach(hand => {
-            p.hands.push(Deck.deserialize(hand));
-          });
-        }
-        return p;
-      })
+    this.playerData = {};
+    Object.keys(session.playerData).map(key => {
+      const value = session.playerData[key];
+      const player = new Player();
+
+      player.id = value.id;
+      player.name = value.name;
+      player.score = value.score;
+      player.scores = value.scores;
+      player.hands = value.hands ? value.hands.split(',').map(hand => Deck.deserialize(hand)) : [];
+      this.playerData[key] = player;
+    })
   }
 
   deal(round: number): void {
-    Game.validateDeal(round, this.players.length);
+    Game.validateDeal(round, this.playerIds.length);
 
+    this.phase = 1;
+    this.currentId = (round - 1) % this.playerIds.length;
+    this.winnerId = null;
     this.round = round;
     this.deck = Deck.create();
     this.deck.shuffle();
 
-    this.players.forEach(player => {
+    Object.keys(this.playerData).map(key => {
+      const player = this.playerData[key];
+
       if (player.score === undefined) {
         player.score = 0;
         player.scores = [];
@@ -108,9 +137,22 @@ export class Game {
     this.pile.push(this.deck.drawCard());
   }
 
+  get isCurrent(): boolean {
+    return this.currentId === this.sessionKey.playerId;
+  }
+
+  get canDraw(): boolean {
+    return this.isCurrent && this.phase === 1;
+  }
+
+  get canDiscard(): boolean {
+    return this.isCurrent && this.phase === 2;
+  }
+
   drawOpen(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.pile.drawCard();
+    this.phase = 2;
     if (!added) {
       player.hands[hand].push(card);
     }
@@ -119,6 +161,7 @@ export class Game {
   drawDeck(hand: number, added: boolean): void {
     const player = this.player;
     const card = this.drawCard();
+    this.phase = 2;
     if (!added) {
       player.hands[hand].push(card);
     } else {
@@ -130,7 +173,31 @@ export class Game {
   discard(handIdx: number, cardIdx: number): void {
     const player = this.player;
     const card = player.hands[handIdx].discard(cardIdx);
+    this.phase = 1;
     this.pile.push(card);
+  }
+
+  detectRoundWinner(): void {
+    if (this.winnerId !== undefined) {
+      this.calcScore();
+    } else if (this.isWinner()) {
+      this.winnerId = this.sessionKey.playerId;
+      this.player.scores.push(0);
+    }
+  }
+
+  nextCurrentId(): void {
+    let index = this.playerIds.indexOf(this.currentId) + 1;
+    if (index >= this.playerIds.length) {
+      index = 0;
+    }
+    this.currentId = this.playerIds[index];
+  }
+
+  detectGameWinner(): void {
+    const scores = Object.keys(this.playerData).map(key => this.playerData[key].score);
+    const score = Math.min(...scores);
+    this.winnerId = scores.indexOf(score);
   }
 
   isRunOrSet(deck: Deck): boolean {

@@ -1,12 +1,12 @@
 import {Component, OnInit} from '@angular/core';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import {Subscription} from 'rxjs';
-import {UserService} from 'src/app/shared/user.service';
-import {Pages, PageService} from 'src/app/shared/page.service';
-import {PasswordService} from 'src/app/shared/password.service';
+import {UserService} from 'src/app/shared/services/user.service';
+import {Pages, PageService} from 'src/app/shared/services/page.service';
+import {PasswordService} from 'src/app/shared/services/password.service';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {AutoUnsubscribe} from 'src/app/shared/auto-unsubscribe';
-import {SessionService} from "../../shared/session.service";
+import {SessionService} from "../../shared/services/session.service";
 
 @AutoUnsubscribe
 @Component({
@@ -42,20 +42,9 @@ export class SignInComponent extends FormComponent implements OnInit {
       this.submitted = false;
 
       if (user && new PasswordService().compare(password, user.password)) {
-        if (user.session) {
-          this.sessionService.findById(user.session)
-            .then(session => {
-              this.userService.user.next(user);
-              this.sessionService.session.next(session);
-              this.pageService.page.next(Pages.Home);
-              this.form.reset();
-            })
-            .catch(error => console.error(error))
-        } else {
-          this.userService.user.next(user);
-          this.pageService.page.next(Pages.Home);
-          this.form.reset();
-        }
+        this.userService.user.next(user);
+        this.pageService.page.next(Pages.Home);
+        this.form.reset();
       }
       else {
         this.authError = true;

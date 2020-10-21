@@ -1,16 +1,16 @@
 <div class="row">
   <div class="col-12">
-    <h3 class="text-center">{{isHost ? 'Game Server' : 'Joined to Game Server'}}</h3>
+    <h3 class="text-center">{{sessionKey.playerId === 0 ? 'Game Server' : 'Joined to Game Server'}}</h3>
     <div class="max-width-limit mx-auto">
       <table class="table table-hover my-table">
         <thead>
           <tr>
-            <th>Players ({{session.players.length}} / {{session.maxPlayers}})</th>
+            <th>Players ({{session.playerIds.length}} / {{session.playerMax}})</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let player of session.players">
-            <td>{{player.name}}</td>
+          <tr *ngFor="let playerId of session.playerIds">
+            <td>{{session.playerData[playerId]?.name}}</td>
           </tr>
         </tbody>
       </table>
@@ -18,8 +18,8 @@
     <div class="max-width-limit mx-auto">
       <div class="mx-auto" style="width: max-content;">
         <button class="btn btn-primary" [class.btn-primary]="ready" [class.btn-secondary]="!ready"
-                [disabled]="!ready" *ngIf="isHost" (click)="start()">Start</button>
-        <button class="btn btn-primary" (click)="exit()">Exit</button>
+                [disabled]="!ready" *ngIf="sessionKey.playerId === 0" (click)="start()">Start</button>
+        <button class="btn btn-primary" (click)="quit()">Quit</button>
       </div>
     </div>
   </div>
