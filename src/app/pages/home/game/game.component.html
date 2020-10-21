@@ -36,7 +36,7 @@
   </div>
 
   <p style="padding-top: 10px;">
-    <span style="margin-left: 12px; margin-right: 12px;"><strong class="player-fa-icon wild-card">{{game.wildCard}}</strong>s are wild</span>
+    <span style="margin-left: 12px; margin-right: 24px;"><strong class="player-fa-icon wild-card">{{game.wildCard}}</strong>s are wild</span>
     <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
     <span *ngIf="game.canDiscard">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
     <span *ngIf="!game.isCurrent"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.playerData[game.currentId]?.name}}</span>
