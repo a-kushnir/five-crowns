@@ -42,19 +42,22 @@ export class SessionService {
     this.rtu = new RealTimeUpdate(this.listenForUpdates.bind(this), this.handleUpdates.bind(this));
     this.rtu2 = new RealTimeUpdate(this.listenForUpdates2.bind(this), this.handleUpdates2.bind(this));
 
+    const user = userService.user.value;
     this.sessionKey = new BehaviorSubject<SessionKey>(
-      SessionKey.deserialize(userService.user.value.session)
+      user ? SessionKey.deserialize(user?.session) : null
     );
     this.session = new BehaviorSubject<Session>(null);
 
     this.sessionKey.subscribe(sessionKey => {
       const user = userService.user.value;
-      userService.update(user.id, {session: SessionKey.serialize(sessionKey)})
-        .catch(error => console.log(error));
+      if (user) {
+        userService.update(user.id, {session: SessionKey.serialize(sessionKey)})
+          .catch(error => console.log(error));
 
-      this.rtu.subscribe(sessionKey?.sessionId);
-      if (!sessionKey) {
-        this.session.next(null);
+        this.rtu.subscribe(sessionKey?.sessionId);
+        if (!sessionKey) {
+          this.session.next(null);
+        }
       }
     })
 
