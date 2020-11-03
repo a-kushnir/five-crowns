@@ -6,7 +6,7 @@ import {Pages, PageService} from 'src/app/shared/services/page.service';
 import {PasswordService} from 'src/app/shared/services/password.service';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {AutoUnsubscribe} from 'src/app/shared/auto-unsubscribe';
-import {SessionService} from "../../shared/services/session.service";
+import {SessionKey, SessionService} from "../../shared/services/session.service";
 
 @AutoUnsubscribe
 @Component({
@@ -43,6 +43,7 @@ export class SignInComponent extends FormComponent implements OnInit {
 
       if (user && new PasswordService().compare(password, user.password)) {
         this.userService.user.next(user);
+        this.sessionService.sessionKey.next(SessionKey.deserialize(user.session));
         this.pageService.page.next(Pages.Home);
         this.form.reset();
       }

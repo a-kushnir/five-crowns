@@ -3,7 +3,6 @@ import {BehaviorSubject, Observable} from 'rxjs';
 import {AngularFirestore} from '@angular/fire/firestore';
 import {AngularFirestoreCollection} from '@angular/fire/firestore/collection/collection';
 import {QueryFn} from '@angular/fire/firestore/interfaces';
-import _ from 'lodash';
 import {RealTimeUpdate} from '../real-time-update';
 import {Session, SessionStates} from "../models/session.model";
 import {Player} from "../models/player.model";
@@ -33,14 +32,11 @@ export class SessionKey {
 export class SessionService {
   sessionKey: BehaviorSubject<SessionKey>;
   session: BehaviorSubject<Session>;
-  sessions: BehaviorSubject<Session[]>;
   private rtu: RealTimeUpdate;
-  private rtu2: RealTimeUpdate;
 
   constructor(private firestore: AngularFirestore,
               private userService: UserService) {
     this.rtu = new RealTimeUpdate(this.listenForUpdates.bind(this), this.handleUpdates.bind(this));
-    this.rtu2 = new RealTimeUpdate(this.listenForUpdates2.bind(this), this.handleUpdates2.bind(this));
 
     const user = userService.user.value;
     this.sessionKey = new BehaviorSubject<SessionKey>(
@@ -60,9 +56,6 @@ export class SessionService {
         }
       }
     })
-
-    this.sessions = new BehaviorSubject<Session[]>([]);
-    this.rtu2.subscribe('key');
   }
 
   private collection(queryFn?: QueryFn): AngularFirestoreCollection<any> {
@@ -84,19 +77,13 @@ export class SessionService {
     this.session.next(record);
   }
 
-  private listenForUpdates2(): Observable<any> {
+  listenForSessions(): Observable<any> {
     return this
       .collection((ref) => ref
         .where('state', '==', SessionStates.Waiting)
         .limit(100)
       )
       .valueChanges({idField: 'id'});
-  }
-
-  private handleUpdates2(key: any, records: any): void {
-    if (!_.isEqual(this.sessions.value, records)) {
-      this.sessions.next(records);
-    }
   }
 
   create(session: Session): Promise<Session> {

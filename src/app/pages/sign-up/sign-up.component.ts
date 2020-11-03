@@ -7,6 +7,7 @@ import {Pages, PageService} from 'src/app/shared/services/page.service';
 import {User} from 'src/app/shared/models/user.model';
 import {FormComponent} from 'src/app/shared/components/form/form.component';
 import {MyValidators} from 'src/app/shared/validators/my-validators';
+import {SessionKey, SessionService} from "../../shared/services/session.service";
 
 @Component({
   selector: 'app-sign-up',
@@ -16,6 +17,7 @@ import {MyValidators} from 'src/app/shared/validators/my-validators';
 export class SignUpComponent extends FormComponent implements OnInit {
 
   constructor(private userService: UserService,
+              private sessionService: SessionService,
               private pageService: PageService,
               private profileService: ProfileService) {
     super();
@@ -47,6 +49,7 @@ export class SignUpComponent extends FormComponent implements OnInit {
 
             this.form.reset();
             this.userService.user.next(newUser);
+            this.sessionService.sessionKey.next(null);
             this.pageService.page.next(Pages.Home);
           }).catch(error => {
             this.submitted = false;
