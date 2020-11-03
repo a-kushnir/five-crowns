@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import * as firebase from 'firebase';
+import * as firebase from 'firebase/app';
 import FieldValue = firebase.firestore.FieldValue;
 
 export function prepareForUpdate(data: object): object {
