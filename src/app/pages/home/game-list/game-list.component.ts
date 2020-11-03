@@ -1,13 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-import {BehaviorSubject, Observable, Subscription} from "rxjs";
+import {Subscription} from "rxjs";
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {AutoUnsubscribe} from "src/app/shared/auto-unsubscribe";
 import {SessionService} from "src/app/shared/services/session.service";
 import {UserService} from "src/app/shared/services/user.service";
-import {RealTimeUpdate} from "../../../shared/real-time-update";
-import {QueryFn} from "@angular/fire/firestore/interfaces";
-import {AngularFirestoreCollection} from "@angular/fire/firestore/collection/collection";
-import {AngularFirestore} from "@angular/fire/firestore";
 
 @AutoUnsubscribe
 @Component({
@@ -22,7 +18,6 @@ export class GameListComponent implements OnInit {
   submitted: boolean = false;
 
   constructor(private userService: UserService,
-              private firestore: AngularFirestore,
               private sessionService: SessionService) {
   }
 
