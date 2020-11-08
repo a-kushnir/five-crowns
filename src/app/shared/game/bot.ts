@@ -26,7 +26,9 @@ export class Bot {
   }
 
   autoDraw(gameComponent: GameComponent): void {
-    if (!this.game.canDraw) return;
+    const player = this.game.currentPlayer;
+    if (!player.bot) return;
+    if (!this.game.botCanDraw) return;
 
     const open = this.game.openCard;
     if (open.isWild(this.game.round)) {
@@ -35,7 +37,6 @@ export class Bot {
       return;
     }
 
-    const player = this.game.player;
     for(let i = 1; i < player.hands.length; i++) {
       const d = new Deck();
       d.add(player.hands[i]);
@@ -48,12 +49,14 @@ export class Bot {
     }
     this.game.drawDeck(0, false);
     gameComponent.update(SaveModes.SessionAndPlayer);
+    console.log(`${player.name}: autoDraw`);
   }
 
   autoDiscard(gameComponent: GameComponent): void {
-    if (!this.game.canDiscard) return;
+    const player = this.game.currentPlayer;
+    if (!player.bot) return;
+    if (!this.game.botCanDiscard) return;
 
-    const player = this.game.player;
     if (player.hands[0].cards.length > 0) {
       let max = player.hands[0].cards[0];
       let maxIdx = 0;
@@ -72,27 +75,30 @@ export class Bot {
       })
       gameComponent.discard(0, maxIdx);
     } else {
-      alert('No cards in the first hand');
+      throw `${player.name}: autoDiscard / No cards in the first hand`;
     }
+    console.log(`${player.name}: autoDiscard`);
   }
 
-  newDeck(): Deck {
+  private newDeck(): Deck {
     const deck = new Deck();
-    this.game.player.hands.push(deck);
+    this.game.currentPlayer.hands.push(deck);
     return deck;
   }
 
-  moveCards(srcDeck: Deck, dstDeck: Deck, cards: Card[]) {
+  private moveCards(srcDeck: Deck, dstDeck: Deck, cards: Card[]) {
     srcDeck.moveTo(dstDeck, ...cards);
   }
 
-  moveWildCards(srcDeck: Deck, dstDeck: Deck, cards: Card[], count: number): void {
+  private moveWildCards(srcDeck: Deck, dstDeck: Deck, cards: Card[], count: number): void {
     count = Math.min(count, cards.length);
     srcDeck.moveTo(dstDeck, ...cards.splice(-count, count));
   }
 
   autoGroup(): void {
-    const player = this.game.player;
+    const player = this.game.currentPlayer;
+    if (!player.bot) return;
+
     const deck = new Deck();
     deck.add(...player.hands);
     player.hands = [deck];
@@ -106,9 +112,9 @@ export class Bot {
         if (!g) g = groups[0];
         if (g) {
           const canSplit4 = deck4 && g.cards.length == regular.length && g.wilds <= wild.length;
-          if (this.game.canDraw ||
-             (this.game.canDiscard && this.game.winnerId === undefined && (g.cards.length < regular.length || canSplit4)) ||
-             (this.game.canDiscard && this.game.winnerId !== undefined && (g.cards.length < regular.length || canSplit4) && g.wilds <= wild.length)) {
+          if (this.game.botCanDraw ||
+             (this.game.botCanDiscard && this.game.winnerId === undefined && (g.cards.length < regular.length || canSplit4)) ||
+             (this.game.botCanDiscard && this.game.winnerId !== undefined && (g.cards.length < regular.length || canSplit4) && g.wilds <= wild.length)) {
             const d = this.newDeck();
             this.moveCards(deck, d, g.cards);
             this.moveWildCards(deck, d, wild, g.wilds);
@@ -132,5 +138,6 @@ export class Bot {
     }
     const d = player.hands[player.hands.length - 1];
     this.moveWildCards(deck, d, wild, wild.length);
+    console.log(`${player.name}: autoGroup`);
   }
 }

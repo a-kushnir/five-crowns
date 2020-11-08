@@ -27,6 +27,7 @@ export class GameComponent implements OnInit {
   game: Game;
   openCards: Card[];
   bot: Bot;
+  waitingForBot: boolean;
 
   handSortOptions = {
     group: {
@@ -85,6 +86,9 @@ export class GameComponent implements OnInit {
     if (this.game.isHost && !session.round) {
       this.deal(1);
     }
+    if (this.game.isHost) {
+      this.runBot();
+    }
     if (_.isEqual(this.session, session)) {
       return;
     }
@@ -104,6 +108,43 @@ export class GameComponent implements OnInit {
     this.session = session;
   }
 
+  runBot(): void {
+    if (!this.game.isHost) return;
+    if (this.waitingForBot) return;
+    const player = this.game.playerData[this.game.currentId];
+    if (!player.bot) return;
+
+    if (this.game.phase === 1) {
+      this.waitingForBot = true;
+      setTimeout(this.runBotPhase1.bind(this), Math.random() * 1000 + 300);
+
+    } else if (this.game.phase === 2) {
+      this.waitingForBot = true;
+      setTimeout(this.runBotPhase2.bind(this), Math.random() * 1000 + 300);
+
+    }
+  }
+
+  runBotPhase1(): void {
+    const player = this.game.playerData[this.game.currentId];
+    if (!player.bot) return;
+    if (this.game.phase !== 1) return;
+
+    this.bot.autoGroup();
+    this.bot.autoDraw(this);
+    this.waitingForBot = false;
+  }
+
+  runBotPhase2(): void {
+    const player = this.game.playerData[this.game.currentId];
+    if (!player.bot) return;
+    if (this.game.phase !== 2) return;
+
+    this.bot.autoGroup();
+    this.bot.autoDiscard(this);
+    this.waitingForBot = false;
+  }
+
   onSortMove(event): boolean {
     const src = event.from.dataset.list;
     const dst = event.to.dataset.list;
@@ -112,13 +153,13 @@ export class GameComponent implements OnInit {
       return true;
 
     } else if (src === 'openCard') {
-      return dst === 'openCard' || (!isNaN(Number(dst)) && this.game.canDraw);
+      return dst === 'openCard' || (!isNaN(Number(dst)) && this.game.playerCanDraw);
 
     } else if (src === 'deckCard') {
-      return dst === 'deckCard' || (!isNaN(Number(dst)) && this.game.canDraw);
+      return dst === 'deckCard' || (!isNaN(Number(dst)) && this.game.playerCanDraw);
 
     } else if (dst === 'openCard') {
-      return dst === 'openCard' || (!isNaN(Number(src)) && this.game.canDiscard);
+      return dst === 'openCard' || (!isNaN(Number(src)) && this.game.playerCanDiscard);
     }
 
     return false;
@@ -133,17 +174,17 @@ export class GameComponent implements OnInit {
       this.update(SaveModes.PlayerOnly);
 
     } else if (src === 'openCard') {
-      if (!isNaN(Number(dst)) && this.game.canDraw) {
+      if (!isNaN(Number(dst)) && this.game.playerCanDraw) {
         this.drawOpen(Number(dst), true);
       }
 
     } else if (src === 'deckCard') {
-      if (!isNaN(Number(dst)) && this.game.canDraw) {
+      if (!isNaN(Number(dst)) && this.game.playerCanDraw) {
         this.drawDeck(Number(dst), true);
       }
 
     } else if (dst === 'openCard') {
-      if (!isNaN(Number(src)) && this.game.canDiscard) {
+      if (!isNaN(Number(src)) && this.game.playerCanDiscard) {
         const card = this.openCards.splice(event.newIndex, 1)[0];
         this.game.player.hands[Number(src)].cards.splice(event.oldIndex, 0, card);
         this.discard(Number(src), event.oldIndex);
@@ -161,7 +202,7 @@ export class GameComponent implements OnInit {
   }
 
   drawDeck(hand: number = 0, added: boolean = false): void {
-    if (this.game.canDraw) {
+    if (this.game.playerCanDraw || this.game.botCanDraw) {
       this.game.drawDeck(hand, added);
       this.update(SaveModes.SessionAndPlayer);
       this.playAudio(AudioAssets.CardMoved);
@@ -169,7 +210,7 @@ export class GameComponent implements OnInit {
   }
 
   drawOpen(hand: number = 0, added: boolean = false): void {
-    if (this.game.canDraw) {
+    if (this.game.playerCanDraw || this.game.botCanDraw) {
       this.game.drawOpen(hand, added);
       this.update(SaveModes.SessionAndPlayer);
       this.playAudio(AudioAssets.CardMoved);
@@ -177,7 +218,7 @@ export class GameComponent implements OnInit {
   }
 
   discard(hand: number, card: number): void {
-    if (this.game.canDiscard) {
+    if (this.game.playerCanDiscard || this.game.botCanDiscard) {
       this.game.discard(hand, card);
       this.openCards = [this.game.openCard];
       this.game.detectRoundWinner();

@@ -35,7 +35,11 @@ export class Game {
   }
 
   get player(): Player {
-    return this.playerData[this.sessionKey.playerId]
+    return this.playerData[this.sessionKey.playerId];
+  }
+
+  get currentPlayer(): Player {
+    return this.playerData[this.currentId];
   }
 
   get wildCard(): string {
@@ -71,8 +75,9 @@ export class Game {
 
           const player = this.playerData[playerId];
           const value = {} as Partial<PlayerModel>;
-          value.id = player.id;
+          if (player.id) value.id = player.id;
           value.name = player.name;
+          if (player.bot) value.bot = player.bot;
           value.score = player.score;
           value.scores = player.scores;
           value.hands = player.hands.map(hand => hand.serialize()).join(',');
@@ -100,8 +105,9 @@ export class Game {
       const value = session.playerData[key];
       const player = new Player();
 
-      player.id = value.id;
+      if (value.id) player.id = value.id;
       player.name = value.name;
+      if (value.bot) player.bot = value.bot;
       player.score = value.score;
       player.scores = value.scores;
       player.hands = value.hands ? value.hands.split(',').map(hand => Deck.deserialize(hand)) : [];
@@ -145,16 +151,24 @@ export class Game {
     return this.currentId === this.sessionKey.playerId;
   }
 
-  get canDraw(): boolean {
+  get playerCanDraw(): boolean {
     return this.isCurrent && this.phase === 1;
   }
 
-  get canDiscard(): boolean {
+  get playerCanDiscard(): boolean {
     return this.isCurrent && this.phase === 2;
   }
 
+  get botCanDraw(): boolean {
+    return this.currentPlayer?.bot && this.phase === 1;
+  }
+
+  get botCanDiscard(): boolean {
+    return this.currentPlayer?.bot && this.phase === 2;
+  }
+
   drawOpen(hand: number, added: boolean): void {
-    const player = this.player;
+    const player = this.currentPlayer;
     const card = this.pile.drawCard();
     this.phase = 2;
     if (!added) {
@@ -163,7 +177,7 @@ export class Game {
   }
 
   drawDeck(hand: number, added: boolean): void {
-    const player = this.player;
+    const player = this.currentPlayer;
     const card = this.drawCard();
     this.phase = 2;
     if (!added) {
@@ -180,7 +194,7 @@ export class Game {
   }
 
   discard(handIdx: number, cardIdx: number): void {
-    const player = this.player;
+    const player = this.currentPlayer;
     const card = player.hands[handIdx].discard(cardIdx);
     this.phase = 1;
     this.pile.push(card);

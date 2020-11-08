@@ -24,26 +24,26 @@
 
   <div class="row">
     <div data-list="deckCard" class="player-hand rounded"
-         [class.sort-disabled]="!game.canDraw"
+         [class.sort-disabled]="!game.playerCanDraw"
          [sortablejs]="[null]" [sortablejsOptions]="deckSortOptions">
       <app-game-card [card]="null" (click)="drawDeck()"></app-game-card>
     </div>
     <div data-list="openCard" class="player-hand rounded hide-if-two-div" style="margin-left: 10px;"
-         [class.sort-disabled]="!game.canDraw"
+         [class.sort-disabled]="!game.playerCanDraw"
          [sortablejs]="openCards" [sortablejsOptions]="openSortOptions">
       <app-game-card class="hide-if-two-card" [card]="openCard" (click)="drawOpen()"></app-game-card>
     </div>
   </div>
 
-  <div class="float-right">
+  <!--div class="float-right">
     <button (click)="bot.autoGroup()" [disabled]="!this.game.canDraw && !this.game.canDiscard">Auto Group</button>
     <button (click)="bot.autoDraw(this)" [disabled]="!this.game.canDraw">Auto Draw</button>
     <button (click)="bot.autoDiscard(this)" [disabled]="!this.game.canDiscard">Auto Discard</button>
-  </div>
+  </div-->
   <p style="padding-top: 10px;">
     <span style="margin-left: 12px; margin-right: 24px;"><strong class="player-fa-icon wild-card">{{game.wildCard}}</strong>s are wild</span>
-    <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
-    <span *ngIf="game.canDiscard">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
+    <span *ngIf="game.playerCanDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>
+    <span *ngIf="game.playerCanDiscard">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleUp"></fa-icon> Discard a card</span>
     <span *ngIf="!game.isCurrent"><app-game-hourglass class="player-fa-icon"></app-game-hourglass> Waiting for {{game.playerData[game.currentId]?.name}}</span>
     <span *ngIf="game.winnerId !== undefined">&nbsp;&nbsp;<fa-icon [icon]="faExclamationTriangle" class="player-fa-icon"></fa-icon>&nbsp;&nbsp;Last Turn</span>
   </p>

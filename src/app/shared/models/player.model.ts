@@ -1,8 +1,8 @@
 
 export class Player {
-  id: string;
+  id?: string;
   name: string;
-  bot: boolean;
+  bot?: boolean;
   hands?: string;
   score?: number;
   scores?: number[];

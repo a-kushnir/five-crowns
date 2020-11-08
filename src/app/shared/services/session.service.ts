@@ -177,7 +177,6 @@ export class SessionService {
       .map(key => this.session.value.playerData[key].name)
 
     const player = {
-      id: 'bot',
       name: Bot.generateName(names),
       bot: true
     } as Player;
