@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
-import {faArrowCircleDown, faArrowCircleUp, faCrown, faExclamationTriangle} from '@fortawesome/free-solid-svg-icons';
+import {faArrowCircleDown, faArrowCircleUp, faCrown, faExclamationTriangle, faUser, faRobot} from '@fortawesome/free-solid-svg-icons';
 import _ from 'lodash';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {UserService} from "src/app/shared/services/user.service";
@@ -20,6 +20,8 @@ export class GameComponent implements OnInit {
   readonly faArrowCircleUp = faArrowCircleUp;
   readonly faExclamationTriangle = faExclamationTriangle;
   readonly faCrown = faCrown;
+  readonly faUser = faUser;
+  readonly faRobot = faRobot;
 
   private $session: Subscription;
   sessionKey: SessionKey;

@@ -70,11 +70,12 @@ export class Game {
 
     if (saveMode !== SaveModes.SessionOnly) {
       this.playerIds.forEach(playerId => {
+        const player = this.playerData[playerId];
+
         if (saveMode === SaveModes.Complete ||
             playerId === this.sessionKey.playerId ||
-            (this.currentId == playerId && this.currentPlayer.bot)) {
+            (this.isHost && player.bot)) {
 
-          const player = this.playerData[playerId];
           const value = {} as Partial<PlayerModel>;
           if (player.id) value.id = player.id;
           value.name = player.name;
@@ -120,7 +121,7 @@ export class Game {
     Game.validateDeal(round, this.playerIds.length);
 
     this.phase = 1;
-    this.currentId = (round - 1) % this.playerIds.length;
+    this.currentId = this.playerIds[(round - 1) % this.playerIds.length];
     this.winnerId = null;
     this.round = round;
     this.deck = Deck.create();

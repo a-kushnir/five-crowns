@@ -15,7 +15,7 @@
             </td>
             <td>{{session.playerData[playerId]?.name}}</td>
             <td style="width: 1px;" class="text-center player-status player-fa-icon">
-              <a (click)="removePlayer(playerId)"><fa-icon [icon]="faTimes"></fa-icon></a>
+              <a *ngIf="playerId !== 0" (click)="removePlayer(playerId)"><fa-icon [icon]="faTimes"></fa-icon></a>
             </td>
           </tr>
         </tbody>
