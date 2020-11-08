@@ -87,20 +87,28 @@ export class Deck {
     }
   }
 
-  moveTo(deck, card): boolean {
-    const index = this.cards.findIndex(c => card.value == c.value && card.suit == c.suit)
-    if (index >= 0) {
-      deck.push(this.discard(index));
-    }
-    return index >= 0;
+  moveTo(deck: Deck, ...cards: Card[]): void {
+    cards.forEach(card => {
+      const index = this.cards.findIndex(c => card.value == c.value && card.suit == c.suit)
+      if (index >= 0) {
+        deck.push(this.discard(index));
+      }
+    })
   }
 
-  split(round: number): { regular, wilds } {
-    const result = {regular: [], wilds: []};
+  split(round: number): { regular, wild } {
+    const result = {regular: [], wild: []};
     for (let card of this.cards) {
-      (card?.isWild(round) ? result.wilds : result.regular)
+      (card?.isWild(round) ? result.wild : result.regular)
         .push(card);
     }
+    result.wild.sort((a, b) => {
+      if (a.value != b.value) {
+        return a.value < b.value ? 1 : -1;
+      } else {
+        return a.suit < b.suit ? 1 : -1;
+      }
+    })
     return result;
   }
 
@@ -108,7 +116,7 @@ export class Deck {
     if (this.length < 3)
       return false;
 
-    const {regular, wilds} = this.split(round);
+    const {regular, wild} = this.split(round);
     if (regular.length < 2)
       return true;
 
@@ -126,7 +134,7 @@ export class Deck {
     // No missing cards
     regular.sort((a, b) => a.value < b.value ? -1 : 1);
     const delta = regular[regular.length - 1].value - regular[0].value;
-    return delta - regular.length - wilds.length < 0;
+    return delta - regular.length - wild.length < 0;
   }
 
   isSet(round: number): boolean {
@@ -146,7 +154,7 @@ export class Deck {
   }
 
   score(round: number): number {
-    const {regular, wilds} = this.split(round);
+    const {regular, wild} = this.split(round);
     let points = 0;
     if (!this.isRunOrSet(round)) {
       regular.forEach(card => {
@@ -154,7 +162,7 @@ export class Deck {
           points += card.value
         }
       })
-      points += 25 * wilds.length;
+      points += 25 * wild.length;
     }
     return points;
   }
