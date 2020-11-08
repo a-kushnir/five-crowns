@@ -101,7 +101,7 @@ export class Bot {
             if (g.cards.length >= 4) {
               deck4 = d;
             }
-            if (g.cards.length == regular.length && deck4) {
+            if (g.cards.length == regular.length && g.wilds <= wild.length && deck4) {
               deck4.moveTo(deck, deck4.cards[0]);
             }
           } else {
