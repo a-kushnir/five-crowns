@@ -87,7 +87,9 @@ export class Bot {
         let g = groups.find(g => g.cards.length === regular.length && g.wilds <= wild.length)
         if (!g) g = groups[0];
         if (g) {
-          if ((this.game.winnerId === undefined && g.cards.length < regular.length) || wild.length >= g.wilds) {
+          if (this.game.canDraw ||
+             (this.game.canDiscard && this.game.winnerId === undefined && g.cards.length < regular.length) ||
+             (this.game.canDiscard && this.game.winnerId !== undefined && g.cards.length < regular.length && g.wilds <= wild.length)) {
             const d = this.newDeck();
             this.moveCards(deck, d, g.cards);
             this.moveWildCards(deck, d, wild, g.wilds);
