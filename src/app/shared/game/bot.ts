@@ -3,6 +3,7 @@ import {Deck} from "./deck";
 import {Game, SaveModes} from "./game";
 import {GameComponent} from "../../pages/home/game/game.component";
 import {Group} from "./group";
+import {group} from "@angular/animations";
 
 export class Bot {
   game: Game;
@@ -84,6 +85,7 @@ export class Bot {
     player.hands = [deck];
 
     let {regular, wild, groups} = Group.analyze(deck, this.game.round);
+    let deck4 = null;
 
     while(groups.length > 0) {
       if (groups.length) {
@@ -91,11 +93,17 @@ export class Bot {
         if (!g) g = groups[0];
         if (g) {
           if (this.game.canDraw ||
-             (this.game.canDiscard && this.game.winnerId === undefined && g.cards.length < regular.length) ||
-             (this.game.canDiscard && this.game.winnerId !== undefined && g.cards.length < regular.length && g.wilds <= wild.length)) {
+             (this.game.canDiscard && this.game.winnerId === undefined && (g.cards.length < regular.length || deck4)) ||
+             (this.game.canDiscard && this.game.winnerId !== undefined && (g.cards.length < regular.length || deck4) && g.wilds <= wild.length)) {
             const d = this.newDeck();
             this.moveCards(deck, d, g.cards);
             this.moveWildCards(deck, d, wild, g.wilds);
+            if (g.cards.length >= 4) {
+              deck4 = d;
+            }
+            if (g.cards.length == regular.length && deck4) {
+              deck4.moveTo(deck, deck4.cards[0]);
+            }
           } else {
             break;
           }
