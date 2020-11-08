@@ -49,7 +49,6 @@ export class Bot {
     }
     this.game.drawDeck(0, false);
     gameComponent.update(SaveModes.SessionAndPlayer);
-    console.log(`${player.name}: autoDraw`);
   }
 
   autoDiscard(gameComponent: GameComponent): void {
@@ -75,9 +74,10 @@ export class Bot {
       })
       gameComponent.discard(0, maxIdx);
     } else {
-      throw `${player.name}: autoDiscard / No cards in the first hand`;
+      const error = `${player.name} autoDiscard: No cards in the first hand`;
+      console.error(error);
+      throw error;
     }
-    console.log(`${player.name}: autoDiscard`);
   }
 
   private newDeck(): Deck {
@@ -138,6 +138,5 @@ export class Bot {
     }
     const d = player.hands[player.hands.length - 1];
     this.moveWildCards(deck, d, wild, wild.length);
-    console.log(`${player.name}: autoGroup`);
   }
 }

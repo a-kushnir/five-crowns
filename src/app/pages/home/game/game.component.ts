@@ -116,11 +116,11 @@ export class GameComponent implements OnInit {
 
     if (this.game.phase === 1) {
       this.waitingForBot = true;
-      setTimeout(this.runBotPhase1.bind(this), Math.random() * 1000 + 300);
+      setTimeout(this.runBotPhase1.bind(this), Math.random() * 1200 + 500);
 
     } else if (this.game.phase === 2) {
       this.waitingForBot = true;
-      setTimeout(this.runBotPhase2.bind(this), Math.random() * 1000 + 300);
+      setTimeout(this.runBotPhase2.bind(this), Math.random() * 1200 + 500);
 
     }
   }

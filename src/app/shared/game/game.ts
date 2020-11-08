@@ -71,7 +71,8 @@ export class Game {
     if (saveMode !== SaveModes.SessionOnly) {
       this.playerIds.forEach(playerId => {
         if (saveMode === SaveModes.Complete ||
-            playerId === this.sessionKey.playerId) {
+            playerId === this.sessionKey.playerId ||
+            (this.currentId == playerId && this.currentPlayer.bot)) {
 
           const player = this.playerData[playerId];
           const value = {} as Partial<PlayerModel>;
@@ -204,8 +205,8 @@ export class Game {
     if (this.winnerId !== undefined) {
       this.calcScore();
     } else if (this.isWinner()) {
-      this.winnerId = this.sessionKey.playerId;
-      this.player.scores.push(0);
+      this.winnerId = this.currentId;
+      this.currentPlayer.scores.push(0);
     }
   }
 
@@ -228,12 +229,12 @@ export class Game {
   }
 
   isWinner(): boolean {
-    const player = this.player;
+    const player = this.currentPlayer;
     return player.hands.every(hand => hand.empty || hand.isRunOrSet(this.round));
   }
 
   calcScore() {
-    const player = this.player;
+    const player = this.currentPlayer;
     let score = 0;
     player.hands.forEach(hand => {
       score += hand.score(this.round);
