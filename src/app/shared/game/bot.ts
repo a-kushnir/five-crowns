@@ -92,17 +92,18 @@ export class Bot {
         let g = groups.find(g => g.cards.length === regular.length && g.wilds <= wild.length)
         if (!g) g = groups[0];
         if (g) {
+          const canSplit4 = deck4 && g.cards.length == regular.length && g.wilds <= wild.length;
           if (this.game.canDraw ||
-             (this.game.canDiscard && this.game.winnerId === undefined && (g.cards.length < regular.length || deck4)) ||
-             (this.game.canDiscard && this.game.winnerId !== undefined && (g.cards.length < regular.length || deck4) && g.wilds <= wild.length)) {
+             (this.game.canDiscard && this.game.winnerId === undefined && (g.cards.length < regular.length || canSplit4)) ||
+             (this.game.canDiscard && this.game.winnerId !== undefined && (g.cards.length < regular.length || canSplit4) && g.wilds <= wild.length)) {
             const d = this.newDeck();
             this.moveCards(deck, d, g.cards);
             this.moveWildCards(deck, d, wild, g.wilds);
+            if (canSplit4) {
+              deck4.moveTo(deck, deck4.cards[0]);
+            }
             if (g.cards.length >= 4) {
               deck4 = d;
-            }
-            if (g.cards.length == regular.length && g.wilds <= wild.length && deck4) {
-              deck4.moveTo(deck, deck4.cards[0]);
             }
           } else {
             break;
