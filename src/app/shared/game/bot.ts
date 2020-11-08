@@ -1,6 +1,6 @@
 import {Card} from "./card";
 import {Deck} from "./deck";
-import {Game} from "./game";
+import {Game, SaveModes} from "./game";
 import {GameComponent} from "../../pages/home/game/game.component";
 import {Group} from "./group";
 
@@ -11,12 +11,13 @@ export class Bot {
     this.game = game;
   }
 
-  autoDraw(): void {
+  autoDraw(gameComponent: GameComponent): void {
     if (!this.game.canDraw) return;
 
     const open = this.game.openCard;
     if (open.isWild(this.game.round)) {
       this.game.drawOpen(0, false);
+      gameComponent.update(SaveModes.SessionAndPlayer);
       return;
     }
 
@@ -27,10 +28,12 @@ export class Bot {
       d.push(open);
       if (this.game.isRunOrSet(d)) {
         this.game.drawOpen(0, false);
+        gameComponent.update(SaveModes.SessionAndPlayer);
         return;
       }
     }
     this.game.drawDeck(0, false);
+    gameComponent.update(SaveModes.SessionAndPlayer);
   }
 
   autoDiscard(gameComponent: GameComponent): void {

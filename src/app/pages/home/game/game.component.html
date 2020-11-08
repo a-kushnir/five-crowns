@@ -37,7 +37,7 @@
 
   <!--div class="float-right">
     <button (click)="bot.autoGroup()" [disabled]="!this.game.canDraw && !this.game.canDiscard">Auto Group</button>
-    <button (click)="bot.autoDraw()" [disabled]="!this.game.canDraw">Auto Draw</button>
+    <button (click)="bot.autoDraw(this)" [disabled]="!this.game.canDraw">Auto Draw</button>
     <button (click)="bot.autoDiscard(this)" [disabled]="!this.game.canDiscard">Auto Discard</button>
   </div-->
   <p style="padding-top: 10px;">
