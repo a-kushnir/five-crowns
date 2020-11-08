@@ -51,6 +51,10 @@ export class Deck {
     return deck;
   }
 
+  add(...decks: Deck[]) {
+    decks.forEach(deck => this.push(...deck.cards));
+  }
+
   push(...cards: Card[]): void {
     this.cards.push(...cards);
   }
@@ -83,7 +87,15 @@ export class Deck {
     }
   }
 
-  private split(round: number): { regular, wilds } {
+  moveTo(deck, card): boolean {
+    const index = this.cards.findIndex(c => card.value == c.value && card.suit == c.suit)
+    if (index >= 0) {
+      deck.push(this.discard(index));
+    }
+    return index >= 0;
+  }
+
+  split(round: number): { regular, wilds } {
     const result = {regular: [], wilds: []};
     for (let card of this.cards) {
       (card?.isWild(round) ? result.wilds : result.regular)

@@ -35,6 +35,11 @@
     </div>
   </div>
 
+  <!--div class="float-right">
+    <button (click)="bot.autoGroup()">Auto Group</button>
+    <button (click)="bot.autoDraw()" [disabled]="!this.game.canDraw">Auto Draw</button>
+    <button (click)="bot.autoDiscard(this)" [disabled]="!this.game.canDiscard">Auto Discard</button>
+  </div-->
   <p style="padding-top: 10px;">
     <span style="margin-left: 12px; margin-right: 24px;"><strong class="player-fa-icon wild-card">{{game.wildCard}}</strong>s are wild</span>
     <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>

@@ -8,6 +8,7 @@ import {SessionKey, SessionService} from "src/app/shared/services/session.servic
 import {Game, SaveModes} from "src/app/shared/game/game";
 import {Card} from "src/app/shared/game/card";
 import {AudioAssets} from "src/app/shared/audio-assets";
+import {Bot} from "src/app/shared/game/bot";
 
 @Component({
   selector: 'app-home-game',
@@ -25,6 +26,7 @@ export class GameComponent implements OnInit {
   session: Session;
   game: Game;
   openCards: Card[];
+  bot: Bot;
 
   handSortOptions = {
     group: {
@@ -68,6 +70,7 @@ export class GameComponent implements OnInit {
     this.session = this.sessionService.session.value;
     this.game = new Game(this.sessionService.sessionKey.value);
     this.game.deserialize(this.session);
+    this.bot = new Bot(this.game);
     this.openCards = [this.game.openCard];
     this.$session = this.sessionService.session.subscribe(this.onSessionChange.bind(this));
   }
