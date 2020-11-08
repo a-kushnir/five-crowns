@@ -41,9 +41,16 @@ export class Bot {
       let max = player.hands[0].cards[0];
       let maxIdx = 0;
       player.hands[0].cards.forEach((card, index) => {
-        if (card.value > max.value) {
-          max = card;
-          maxIdx = index;
+        if (this.game.winnerId === undefined) {
+          if (max.isWild(this.game.round) || (!card.isWild(this.game.round) && card.value > max.value)) {
+            max = card;
+            maxIdx = index;
+          }
+        } else {
+          if (!max.isWild(this.game.round) && (card.isWild(this.game.round) || card.value > max.value)) {
+            max = card;
+            maxIdx = index;
+          }
         }
       })
       gameComponent.discard(0, maxIdx);
@@ -80,7 +87,7 @@ export class Bot {
         let g = groups.find(g => g.cards.length === regular.length && g.wilds <= wild.length)
         if (!g) g = groups[0];
         if (g) {
-          if (this.game.winnerId === undefined || wild.length >= g.wilds) {
+          if ((this.game.winnerId === undefined && g.cards.length < regular.length) || wild.length >= g.wilds) {
             const d = this.newDeck();
             this.moveCards(deck, d, g.cards);
             this.moveWildCards(deck, d, wild, g.wilds);
