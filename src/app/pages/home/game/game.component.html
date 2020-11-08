@@ -15,7 +15,7 @@
           <app-game-hourglass *ngIf="playerId === game.currentId"></app-game-hourglass>
           <fa-icon [icon]="faCrown" *ngIf="playerId === game.winnerId" style="padding-top: 3px; display: block;"></fa-icon>
         </td>
-        <td style="width: 1px;" class="text-center player-status player-fa-icon">
+        <td style="width: 1px; padding-top: 12px;" class="text-center player-status player-fa-icon">
           <fa-icon [icon]="session.playerData[playerId].bot ? faRobot : faUser"></fa-icon>
         </td>
         <td>{{game.playerData[playerId].name}}</td>

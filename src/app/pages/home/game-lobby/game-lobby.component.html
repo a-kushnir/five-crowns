@@ -10,7 +10,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let playerId of session.playerIds">
-            <td style="width: 1px;" class="text-center player-status player-fa-icon">
+            <td style="width: 1px; padding-right: 0;" class="text-center player-status player-fa-icon">
               <fa-icon [icon]="session.playerData[playerId].bot ? faRobot : faUser"></fa-icon>
             </td>
             <td>{{session.playerData[playerId]?.name}}</td>
