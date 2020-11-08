@@ -8,6 +8,7 @@ import {Session, SessionStates} from "../models/session.model";
 import {Player} from "../models/player.model";
 import {UserService} from "./user.service";
 import {prepareForUpdate} from "src/app/shared/firebase";
+import {Bot} from "../game/bot";
 
 export class SessionKey {
   sessionId: string;
@@ -168,5 +169,23 @@ export class SessionService {
         }
       });
     })
+  }
+
+  addBot(sessionId: string): Promise<number|null> {
+    const names = Object
+      .keys(this.session.value.playerData)
+      .map(key => this.session.value.playerData[key].name)
+
+    const player = {
+      id: 'bot',
+      name: Bot.generateName(names),
+      bot: true
+    } as Player;
+
+    return this.join(sessionId, player);
+  }
+
+  removePlayer(sessionId: string, playerId: number): Promise<void> {
+    return this.quit({ sessionId, playerId })
   }
 }

@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {Subscription} from "rxjs";
 import _ from 'lodash';
+import {faUser, faRobot, faTimes} from '@fortawesome/free-solid-svg-icons';
 import {Session, SessionStates} from "src/app/shared/models/session.model";
 import {SessionKey, SessionService} from "src/app/shared/services/session.service";
 import {UserService} from "src/app/shared/services/user.service";
@@ -11,12 +12,16 @@ import {UserService} from "src/app/shared/services/user.service";
   styleUrls: ['./game-lobby.component.scss']
 })
 export class GameLobbyComponent implements OnInit {
+  readonly faUser = faUser;
+  readonly faRobot = faRobot;
+  readonly faTimes = faTimes;
 
   private $session: Subscription;
   sessionKey: SessionKey;
   session: Session;
 
   ready: boolean;
+  playerMax: boolean;
 
   constructor(private userService: UserService,
               private sessionService: SessionService) {
@@ -33,12 +38,23 @@ export class GameLobbyComponent implements OnInit {
 
     if (session) {
       this.ready = session.playerIds.length > 1;
+      this.playerMax = session.playerIds.length < session.playerMax;
     }
 
     if (!session && this.sessionKey &&
       this.sessionKey.playerId !== 0) {
       alert('Host left the game');
     }
+  }
+
+  addBot(): void {
+    this.sessionService.addBot(this.session.id)
+      .catch(error => console.error(error));
+  }
+
+  removePlayer(playerId: number): void {
+    this.sessionService.removePlayer(this.session.id, playerId)
+      .catch(error => console.error(error));
   }
 
   start() {

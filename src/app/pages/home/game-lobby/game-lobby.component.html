@@ -5,12 +5,18 @@
       <table class="table table-hover my-table">
         <thead>
           <tr>
-            <th>Players ({{session.playerIds.length}} / {{session.playerMax}})</th>
+            <th class="text-center" colspan="3">Players ({{session.playerIds.length}} / {{session.playerMax}})</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let playerId of session.playerIds">
+            <td style="width: 1px;" class="text-center player-status player-fa-icon">
+              <fa-icon [icon]="session.playerData[playerId].bot ? faRobot : faUser"></fa-icon>
+            </td>
             <td>{{session.playerData[playerId]?.name}}</td>
+            <td style="width: 1px;" class="text-center player-status player-fa-icon">
+              <a (click)="removePlayer(playerId)"><fa-icon [icon]="faTimes"></fa-icon></a>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -19,6 +25,8 @@
       <div class="mx-auto" style="width: max-content;">
         <button class="btn btn-primary" [class.btn-primary]="ready" [class.btn-secondary]="!ready"
                 [disabled]="!ready" *ngIf="sessionKey.playerId === 0" (click)="start()">Start</button>
+        <button class="btn btn-primary" [class.btn-primary]="playerMax" [class.btn-secondary]="!playerMax"
+                [disabled]="!playerMax" *ngIf="sessionKey.playerId === 0" (click)="addBot()">Add Bot</button>
         <button class="btn btn-primary" (click)="quit()">Quit</button>
       </div>
     </div>

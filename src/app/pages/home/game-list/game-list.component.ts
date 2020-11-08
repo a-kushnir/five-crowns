@@ -73,7 +73,8 @@ export class GameListComponent implements OnInit {
     const user = this.userService.user.value;
     const player = {
       id: user.id,
-      name: user.name
+      name: user.name,
+      bot: false
     };
     this.sessionService.join(sessionId, player)
       .then(playerId => {

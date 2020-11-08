@@ -3,7 +3,7 @@
     <table class="table my-table">
       <thead>
       <tr>
-        <th></th>
+        <th style="width: 1px;"></th>
         <th>Player</th>
         <th colspan="2" class="text-right">Score</th>
       </tr>
@@ -35,11 +35,11 @@
     </div>
   </div>
 
-  <!--div class="float-right">
+  <div class="float-right">
     <button (click)="bot.autoGroup()" [disabled]="!this.game.canDraw && !this.game.canDiscard">Auto Group</button>
     <button (click)="bot.autoDraw(this)" [disabled]="!this.game.canDraw">Auto Draw</button>
     <button (click)="bot.autoDiscard(this)" [disabled]="!this.game.canDiscard">Auto Discard</button>
-  </div-->
+  </div>
   <p style="padding-top: 10px;">
     <span style="margin-left: 12px; margin-right: 24px;"><strong class="player-fa-icon wild-card">{{game.wildCard}}</strong>s are wild</span>
     <span *ngIf="game.canDraw">Your Turn <fa-icon class="player-fa-icon" [icon]="faArrowCircleDown"></fa-icon> Draw a card</span>

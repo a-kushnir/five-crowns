@@ -3,13 +3,26 @@ import {Deck} from "./deck";
 import {Game, SaveModes} from "./game";
 import {GameComponent} from "../../pages/home/game/game.component";
 import {Group} from "./group";
-import {group} from "@angular/animations";
 
 export class Bot {
   game: Game;
 
   constructor(game: Game) {
     this.game = game;
+  }
+
+  static generateName(players: string[]): string {
+    let names1 = ['Attractive', 'Wise', 'Friendly', 'Rainbow', 'Charming', 'Mature', 'Aristocratic', 'Adorable', 'Proud', 'Romantic', 'Lucky', 'Happy', 'Lazy', 'Mysterious', 'Brave', 'Humble'];
+    let names2 = ['Tiger', 'Pony', 'Goose', 'Cat', 'Dog', 'Fox', 'Sheep', 'Puma', 'Panda', 'Parrot', 'Llama', 'Raccoon', 'Duck', 'Kangaroo', 'Ostrich'];
+    names1 = names1.filter(name => !players.some(player => player.indexOf(name) >= 0));
+    names2 = names2.filter(name => !players.some(player => player.indexOf(name) >= 0));
+    const name1 = this.randomItem(names1);
+    const name2 = this.randomItem(names2);
+    return `${name1} ${name2}`;
+  }
+
+  static randomItem(array: any[]): any {
+    return array[Math.floor(Math.random() * array.length)];
   }
 
   autoDraw(gameComponent: GameComponent): void {
