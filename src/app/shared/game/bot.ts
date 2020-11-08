@@ -99,6 +99,10 @@ export class Bot {
       ({regular, wild, groups} = Group.analyze(deck, this.game.round))
     }
 
+    if (player.hands.length == 1 && wild.length >= 2) {
+      const d = this.newDeck();
+      this.moveCards(deck, d, [deck.cards[0]]);
+    }
     const d = player.hands[player.hands.length - 1];
     this.moveWildCards(deck, d, wild, wild.length);
   }
